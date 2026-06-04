@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Merchant Dashboard</title>
+
+  <!-- Bootstrap 5 (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg: #0b1220;
+      --panel: #0f1a2e;
+      --panel-2: #0c1629;
+      --border: rgba(255,255,255,.10);
+      --muted: rgba(255,255,255,.70);
+      --muted-2: rgba(255,255,255,.55);
+      --accent: #7c5cff;
+      --good: #1dd1a1;
+      --warn: #feca57;
+      --bad: #ff6b6b;
+    }
+    body {
+      background: linear-gradient(180deg, #070b14 0%, #070b14 45%, #090f1f 100%);
+      color: #fff;
+    }
+    .navbar {
+      backdrop-filter: blur(10px);
+      background: rgba(10, 18, 34, 0.75) !important;
+      border-bottom: 1px solid var(--border);
+    }
+    .app-container{
+      max-width: 1280px;
+    }
+    .card, .modal-content {
+      background: linear-gradient(180deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.03) 100%);
+      border: 1px solid var(--border);
+      color: #fff;
+    }
+    .card-header {
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+    }
+    .text-muted { color: var(--muted) !important; }
+    .small-muted { color: var(--muted-2); font-size: .9rem; }
+    .pill {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      border-radius: 999px;
+      padding: .25rem .6rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      color: var(--muted);
+    }
+    .dot {
+      width: .5rem; height: .5rem; border-radius: 50%;
+      background: var(--muted);
+      display: inline-block;
+    }
+    .dot.good { background: var(--good); }
+    .dot.warn { background: var(--warn); }
+    .dot.bad  { background: var(--bad); }
+    .btn-accent {
+      background: var(--accent);
+      border-color: rgba(255,255,255,.12);
+      color: #fff;
+    }
+    .btn-accent:hover { filter: brightness(1.06); }
+    .btn-outline-light {
+      border-color: rgba(255,255,255,.18);
+      color: #fff;
+    }
+    .btn-outline-light:hover {
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.25);
+      color: #fff;
+    }
+    .form-control, .form-select, .input-group-text {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.15);
+      color: #fff;
+    }
+    .form-control::placeholder { color: rgba(255,255,255,.45); }
+    .form-control:focus, .form-select:focus {
+      background: rgba(255,255,255,.07);
+      border-color: rgba(124,92,255,.65);
+      box-shadow: 0 0 0 .25rem rgba(124,92,255,.18);
+      color: #fff;
+    }
+    .table {
+      color: #fff;
+    }
+    .table>:not(caption)>*>* {
+      background: transparent;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      color: #fff;
+    }
+    .badge-soft {
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: #fff;
+      font-weight: 600;
+    }
+    .badge-status {
+      font-weight: 700;
+      letter-spacing: .2px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+    }
+    .status-new { color: #fff; }
+    .status-accepted { color: var(--good); }
+    .status-preparing { color: var(--warn); }
+    .status-ready { color: #54a0ff; }
+    .status-completed { color: #c8d6e5; }
+    .status-cancelled { color: var(--bad); }
+
+    .kpi {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .kpi .icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: rgba(124,92,255,.18);
+      border: 1px solid rgba(124,92,255,.25);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: #dcd5ff;
+    }
+    .kpi .value { font-size: 1.4rem; font-weight: 800; margin: 0; }
+    .kpi .label { margin: 0; color: var(--muted); }
+
+    .section-title{
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+    .nav-link.active {
+      color: #fff !important;
+    }
+    .nav-link {
+      color: rgba(255,255,255,.75) !important;
+    }
+    .nav-link:hover { color: #fff !important; }
+
+    .toast-container {
+      z-index: 1080;
+    }
+
+    .monospace {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      color: rgba(255,255,255,.8);
+    }
+
+    .scroll-area {
+      max-height: 520px;
+      overflow: auto;
+    }
+    .scroll-area::-webkit-scrollbar { height: 10px; width: 10px; }
+    .scroll-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 999px; }
+    .scroll-area::-webkit-scrollbar-track { background: rgba(255,255,255,.03); border-radius: 999px; }
+
+    .suborder-card {
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03);
+    }
+
+    .blink {
+      animation: blink 1.2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-fluid app-container">
+      <a class="navbar-brand fw-bold" href="#" data-view="dashboard">
+        Merchant Dashboard
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNav" aria-controls="topNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="topNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link active" href="#" data-view="dashboard">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-view="orders">Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-view="menu">Menu</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-view="settings">Settings</a></li>
+        </ul>
+
+        <div class="d-flex gap-2 align-items-center">
+          <span class="pill" title="Connection status">
+            <span id="connDot" class="dot warn blink"></span>
+            <span id="connText" class="small-muted">Connecting…</span>
+          </span>
+
+          <div class="vr vr-white opacity-25"></div>
+
+          <div class="text-end me-2">
+            <div class="small fw-bold" id="stallName">My Stall</div>
+            <div class="small-muted monospace" id="stallIdLabel">stall_id: —</div>
+          </div>
+
+          <button id="btnLogout" class="btn btn-outline-light btn-sm">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container-fluid app-container py-4">
+    <!-- Alerts row -->
+    <div class="row g-3 mb-3">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div class="d-flex align-items-center gap-3">
+              <div>
+                <div class="fw-bold">Realtime merchant view</div>
+                <div class="small-muted">This dashboard shows only your stall’s sub-orders. Use status controls to update fulfillment in real time.</div>
+              </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <div class="input-group input-group-sm" style="width: 320px;">
+                <span class="input-group-text">Stall</span>
+                <input id="stallIdInput" class="form-control" placeholder="Enter stall_id (e.g., 12)" />
+                <button id="btnSetStall" class="btn btn-accent">Apply</button>
+              </div>
+              <div class="input-group input-group-sm" style="width: 260px;">
+                <span class="input-group-text">Poll</span>
+                <select id="pollInterval" class="form-select">
+                  <option value="2000">2s</option>
+                  <option value="5000" selected>5s</option>
+                  <option value="10000">10s</option>
+                  <option value="30000">30s</option>
+                </select>
+                <button id="btnRefresh" class="btn btn-outline-light">Refresh</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <section id="view-dashboard">
+      <div class="row g-3">
+        <!-- KPIs -->
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <div>
+                <div class="section-title">Sales analytics overview</div>
+                <div class="small-muted">Today’s performance and workload for your stall.</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-light btn-sm" id="btnAnalyticsToday">Today</button>
+                <button class="btn btn-outline-light btn-sm" id="btnAnalytics7d">Last 7 days</button>
+                <button class="btn btn-outline-light btn-sm" id="btnAnalytics30d">Last 30 days</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-12 col-md-6 col-xl-3">
+                  <div class="card suborder-card h-100">
+                    <div class="card-body kpi">
+                      <div class="icon">₱</div>
+                      <div>
+                        <p class="value" id="kpiRevenue">—</p>
+                        <p class="label">Revenue</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3">
+                  <div class="card suborder-card h-100">
+                    <div class="card-body kpi">
+                      <div class="icon">#</div>
+                      <div>
+                        <p class="value" id="kpiOrders">—</p>
+                        <p class="label">Sub-orders</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3">
+                  <div class="card suborder-card h-100">
+                    <div class="card-body kpi">
+                      <div class="icon">⏱</div>
+                      <div>
+                        <p class="value" id="kpiAvgPrep">—</p>
+                        <p class="label">Avg prep time</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3">
+                  <div class="card suborder-card h-100">
+                    <div class="card-body kpi">
+                      <div class="icon">★</div>
+                      <div>
+                        <p class="value" id="kpiTopItem">—</p>
+                        <p class="label">Top item</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                      <div class="card suborder-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                          <div class="fw-bold">Work queue</div>
+                          <span class="small-muted" id="queueMeta">—</span>
+                        </div>
+                        <div class="card-body">
+                          <div class="d-flex flex-wrap gap-2">
+                            <span class="badge badge-status status-new px-3 py-2">New: <span id="countNew">0</span></span>
+                            <span class="badge badge-status status-accepted px-3 py-2">Accepted: <span id="countAccepted">0</span></span>
+                            <span class="badge badge-status status-preparing px-3 py-2">Preparing: <span id="countPreparing">0</span></span>
+                            <span class="badge badge-status status-ready px-3 py-2">Ready: <span id="countReady">0</span></span>
+                            <span class="badge badge-status status-completed px-3 py-2">Completed: <span id="countCompleted">0</span></span>
+                            <span class="badge badge-status status-cancelled px-3 py-2">Cancelled: <span id="countCancelled">0</span></span>
+                          </div>
+                          <hr class="border-light opacity-10" />
+                          <div class="small-muted">
+                            Tip: focus on moving <span class="text-white fw-semibold">New</span> → <span class="text-white fw-semibold">Accepted</span> quickly, then keep <span class="text-white fw-semibold">Preparing</span> flowing.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div class="card suborder-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                          <div class="fw-bold">Realtime updates</div>
+                          <span class="small-muted" id="lastSync">Last sync: —</span>
+                        </div>
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div class="small-muted">Auto-refresh is enabled using polling. Adjust interval above.</div>
+                            <button class="btn btn-outline-light btn-sm" id="btnToggleAuto">Pause</button>
+                          </div>
+                          <hr class="border-light opacity-10" />
+                          <div class="small-muted mb-2">Recent events</div>
+                          <ul class="list-group list-group-flush" id="eventLog" style="max-height: 180px; overflow:auto;">
+                            <li class="list-group-item bg-transparent text-white border-0 px-0 small-muted">No events yet.</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div><!-- row -->
+            </div><!-- card-body -->
+          </div><!-- card -->
+        </div>
+
+        <!-- Incoming orders preview -->
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <div>
+                <div class="section-title">Incoming orders</div>
+                <div class="small-muted">Latest sub-orders for your stall (newest first).</div>
+              </div>
+              <div class="d-flex gap-2">
+                <select id="ordersFilter" class="form-select form-select-sm" style="width: 200px;">
+                  <option value="all" selected>All statuses</option>
+                  <option value="new">New</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="preparing">Preparing</option>
+                  <option value="ready">Ready</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+                <button class="btn btn-accent btn-sm" data-view="orders" id="btnGoOrders">Manage orders</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="scroll-area" id="incomingOrders"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ORDERS VIEW -->
+    <section id="view-orders" class="d-none">
+      <div class="row g-3">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <div>
+                <div class="section-title">Orders</div>
+                <div class="small-muted">View and update only your stall’s sub-orders in real time.</div>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <div class="input-group input-group-sm" style="width: 280px;">
+                  <span class="input-group-text">Search</span>
+                  <input id="orderSearch" class="form-control" placeholder="suborder_id / order_id / customer" />
+                </div>
+                <select id="ordersFilter2" class="form-select form-select-sm" style="width: 200px;">
+                  <option value="all" selected>All statuses</option>
+                  <option value="new">New</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="preparing">Preparing</option>
+                  <option value="ready">Ready</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+                <button class="btn btn-outline-light btn-sm" id="btnBulkRefresh">Refresh</button>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table align-middle">
+                  <thead>
+                    <tr class="text-white-50">
+                      <th>Sub-order</th>
+                      <th>Parent Order</th>
+                      <th>Customer</th>
+                      <th>Items</th>
+                      <th>Total</th>
+                      <th>Status</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ordersTableBody">
+                    <tr>
+                      <td colspan="7" class="text-center text-muted py-4">No orders loaded.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="small-muted" id="ordersCountLabel">—</div>
+                <div class="small-muted">Statuses you can set: New, Accepted, Preparing, Ready, Completed, Cancelled</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MENU VIEW -->
+    <section id="view-menu" class="d-none">
+      <div class="row g-3">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <div>
+                <div class="section-title">Menu / Product management</div>
+                <div class="small-muted">Create, update, enable/disable, and price items for your stall.</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-accent btn-sm" id="btnOpenAddItem">Add item</button>
+                <button class="btn btn-outline-light btn-sm" id="btnMenuRefresh">Refresh</button>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-12 col-lg-4">
+                  <div class="card suborder-card">
+                    <div class="card-header fw-bold">Quick edit</div>
+                    <div class="card-body">
+                      <div class="small-muted mb-2">Select an item from the list to edit.</div>
+                      <form id="menuEditForm">
+                        <input type="hidden" id="editItemId" />
+                        <div class="mb-2">
+                          <label class="form-label small text-white-50">Name</label>
+                          <input class="form-control" id="editName" placeholder="e.g., Chicken Rice" required />
+                        </div>
+                        <div class="mb-2">
+                          <label class="form-label small text-white-50">Price</label>
+                          <input class="form-control" id="editPrice" type="number" min="0" step="0.01" placeholder="e.g., 99.00" required />
+                        </div>
+                        <div class="mb-2">
+                          <label class="form-label small text-white-50">Category</label>
+                          <input class="form-control" id="editCategory" placeholder="e.g., Rice Meals" />
+                        </div>
+                        <div class="mb-2">
+                          <label class="form-label small text-white-50">Available</label>
+                          <select class="form-select" id="editAvailable">
+                            <option value="true" selected>Yes</option>
+                            <option value="false">No</option>
+                          </select>
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label small text-white-50">Description</label>
+                          <textarea class="form-control" id="editDescription" rows="3" placeholder="Short description"></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                          <button class="btn btn-accent w-100" type="submit">Save</button>
+                          <button class="btn btn-outline-light w-100" type="button" id="btnClearEdit">Clear</button>
+                        </div>
+                        <hr class="border-light opacity-10" />
+                        <button class="btn btn-outline-light w-100" type="button" id="btnDeleteItem" disabled>Delete item</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-8">
+                  <div class="card suborder-card">
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                      <div class="fw-bold">Items</div>
+                      <div class="input-group input-group-sm" style="width: 320px;">
+                        <span class="input-group-text">Search</span>
+                        <input id="menuSearch" class="form-control" placeholder="Name or category" />
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div class="table-responsive">
+                        <table class="table align-middle">
+                          <thead>
+                            <tr class="text-white-50">
+                              <th>Name</th>
+                              <th>Category</th>
+                              <th>Price</th>
+                              <th>Available</th>
+                              <th class="text-end">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody id="menuTableBody">
+                            <tr>
+                              <td colspan="5" class="text-center text-muted py-4">No items loaded.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div class="small-muted" id="menuCountLabel">—</div>
+                    </div>
+                  </div>
+                </div>
+              </div><!-- row -->
+            </div><!-- card-body -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS VIEW -->
+    <section id="view-settings" class="d-none">
+      <div class="row g-3">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="section-title">Settings</div>
+              <div class="small-muted">Configure merchant profile and dashboard preferences.</div>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-12 col-lg-6">
+                  <div class="card suborder-card h-100">
+                    <div class="card-header fw-bold">Merchant profile</div>
+                    <div class="card-body">
+                      <form id="settingsForm">
+                        <div class="mb-2">
+                          <label class="form-label small text-white-50">Stall name</label>
+                          <input id="settingsStallName" class="form-control" placeholder="My Stall" />
+                        </div>
+                        <div class="mb-2">
+                          <label class="form-label small text-white-50">Stall ID</label>
+                          <input id="settingsStallId" class="form-control" placeholder="e.g., 12" />
+                        </div>
+                        <div class="mb-2">
+                          <label class="form-label small text-white-50">Default status on accept</label>
+                          <select id="settingsAcceptStatus" class="form-select">
+                            <option value="accepted" selected>Accepted</option>
+                            <option value="preparing">Preparing</option>
+                          </select>
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label small text-white-50">Notes</label>
+                          <textarea id="settingsNotes" class="form-control" rows="3" placeholder="Optional internal notes"></textarea>
+                        </div>
+                        <button class="btn btn-accent" type="submit">Save settings</button>
+                      </form>
+                      <hr class="border-light opacity-10" />
+                      <div class="small-muted">
+                        Settings are saved locally in your browser for this demo page.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                  <div class="card suborder-card h-100">
+                    <div class="card-header fw-bold">API configuration</div>
+                    <div class="card-body">
+                      <div class="mb-2">
+                        <label class="form-label small text-white-50">Base URL</label>
+                        <input class="form-control" id="apiBaseUrl" value="http://127.0.0.1:5000" />
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label small text-white-50">Auth token (optional)</label>
+                        <input class="form-control" id="apiToken" placeholder="Bearer token (if your API uses it)" />
+                      </div>
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-outline-light" id="btnTestApi" type="button">Test API</button>
+                        <button class="btn btn-accent" id="btnSaveApi" type="button">Save</button>
+                      </div>
+                      <hr class="border-light opacity-10" />
+                      <div class="small-muted">
+                        This page expects endpoints under <span class="monospace">http://127.0.0.1:5000</span>. If your backend differs, update the routes in the script.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div><!-- row -->
+            </div><!-- card-body -->
+          </div><!-- card -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add Item Modal -->
+  <div class="modal fade" id="addItemModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold">Add menu item</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addItemForm">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label small text-white-50">Name</label>
+                <input class="form-control" id="addName" required placeholder="e.g., Iced Coffee" />
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label small text-white-50">Price</label>
+                <input class="form-control" id="addPrice" type="number" min="0" step="0.01" required placeholder="e.g., 59.00" />
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label small text-white-50">Available</label>
+                <select class="form-select" id="addAvailable">
+                  <option value="true" selected>Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small text-white-50">Category</label>
+                <input class="form-control" id="addCategory" placeholder="e.g., Drinks" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small text-white-50">Image URL (optional)</label>
+                <input class="form-control" id="addImageUrl" placeholder="https://…" />
+              </div>
+              <div class="col-12">
+                <label class="form-label small text-white-50">Description</label>
+                <textarea class="form-control" id="addDescription" rows="3" placeholder="Short description"></textarea>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button class="btn btn-accent w-100" type="submit">Create</button>
+              <button class="btn btn-outline-light w-100" type="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="appToast" class="toast text-bg-dark border border-white border-opacity-10" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastBody">—</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ---------------------------
+    // Config + local persistence
+    // ---------------------------
+    const DEFAULT_BASE_URL = "http://127.0.0.1:5000";
+    const LS_KEYS = {
+      stallId: "merchant.stallId",
+      stallName: "merchant.stallName",
+      pollMs: "merchant.pollMs",
+      acceptStatus: "merchant.acceptStatus",
+      notes: "merchant.notes",
+      apiBaseUrl: "merchant.apiBaseUrl",
+      apiToken: "merchant.apiToken"
+    };
+
+    let state = {
+      baseUrl: DEFAULT_BASE_URL,
+      token: "",
+      stallId: null,
+      stallName: "My Stall",
+      pollMs: 5000,
+      autoRefresh: true,
+      activeAnalyticsRange: "today",
+      suborders: [],
+      menu: [],
+      lastSeenSuborderIds: new Set()
+    };
+
+    // ---------------------------
+    // Helpers
+    // ---------------------------
+    const $ = (sel, el=document) => el.querySelector(sel);
+    const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+    function nowTimeStr() {
+      return new Date().toLocaleString();
+    }
+
+    function money(n) {
+      if (n === null || n === undefined || Number.isNaN(Number(n))) return "—";
+      return Number(n).toLocaleString(undefined, { style: "currency", currency: "PHP" });
+    }
+
+    function safeText(v) {
+      return (v === null || v === undefined) ? "" : String(v);
+    }
+
+    function setConn(ok, msg) {
+      const dot = $("#connDot");
+      const text = $("#connText");
+      dot.classList.remove("good","warn","bad","blink");
+      dot.classList.add(ok ? "good" : "bad");
+      text.textContent = msg || (ok ? "Connected" : "Disconnected");
+    }
+
+    function toast(msg) {
+      $("#toastBody").textContent = msg;
+      const t = bootstrap.Toast.getOrCreateInstance($("#appToast"), { delay: 2500 });
+      t.show();
+    }
+
+    function logEvent(msg) {
+      const ul = $("#eventLog");
+      const li = document.createElement("li");
+      li.className = "list-group-item bg-transparent text-white border-0 px-0";
+      li.innerHTML = `<span class="small-muted">${safeText(nowTimeStr())}</span><div>${safeText(msg)}</div>`;
+      // Remove placeholder
+      const first = ul.firstElementChild;
+      if (first && first.textContent.trim() === "No events yet.") first.remove();
+      ul.prepend(li);
+      // Cap events
+      while (ul.children.length > 10) ul.lastElementChild.remove();
+    }
+
+    function headers() {
+      const h = { "Content-Type": "application/json" };
+      if (state.token) h["Authorization"] = state.token.startsWith("Bearer ") ? state.token : `Bearer ${state.token}`;
+      return h;
+    }
+
+    async function apiFetch(path, options={}) {
+      const url = `${state.baseUrl}${path}`;
+      const res = await fetch(url, {
+        ...options,
+        headers: { ...headers(), ...(options.headers || {}) }
+      });
+      if (!res.ok) {
+        const text = await res.text().catch(()=>"");
+        throw new Error(`${res.status} ${res.statusText}${text ? ` — ${text}` : ""}`);
+      }
+      const ct = res.headers.get("content-type") || "";
+      if (ct.includes("application/json")) return res.json();
+      return res.text();
+    }
+
+    function showView(view) {
+      const views = ["dashboard","orders","menu","settings"];
+      views.forEach(v => {
+        const sec = $(`#view-${v}`);
+        if (sec) sec.classList.toggle("d-none", v !== view);
+      });
+      $$(".nav-link[data-view]").forEach(a => a.classList.toggle("active", a.dataset.view === view));
+    }
+
+    function statusClass(status) {
+      const s = (status || "").toLowerCase();
+      if (s === "new") return "status-new";
+      if (s === "accepted") return "status-accepted";
+      if (s === "preparing") return "status-preparing";
+      if (s === "ready") return "status-ready";
+      if (s === "completed") return "status-completed";
+      if (s === "cancelled") return "status-cancelled";
+      return "status-new";
+    }
+
+    function normStatus(status) {
+      return (status || "").toLowerCase();
+    }
+
+    function filterSuborders(list, filterValue, searchValue) {
+      let out = [...list];
+      const f = (
