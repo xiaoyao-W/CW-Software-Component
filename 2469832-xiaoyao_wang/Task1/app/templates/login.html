@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Multi‑Role Platform — Login / Register</title>
+
+  <!-- Bootstrap 5 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg-0:#070a12;
+      --bg-1:#0b1220;
+      --card: rgba(255,255,255,.06);
+      --card-2: rgba(255,255,255,.09);
+      --stroke: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --muted2: rgba(255,255,255,.55);
+      --shadow: 0 22px 70px rgba(0,0,0,.55);
+      --radius: 18px;
+      --accent1: #7c3aed;
+      --accent2: #22c55e;
+      --accent3: #06b6d4;
+      --accent4: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    html, body { height: 100%; }
+    body{
+      color: var(--text);
+      background:
+        radial-gradient(1100px 650px at 10% 8%, rgba(124,58,237,.35), transparent 58%),
+        radial-gradient(900px 600px at 95% 15%, rgba(34,197,94,.22), transparent 62%),
+        radial-gradient(900px 650px at 65% 90%, rgba(6,182,212,.18), transparent 60%),
+        linear-gradient(180deg, var(--bg-0), var(--bg-1));
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    .page-wrap{
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      padding: 28px 0;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:.75rem;
+      user-select:none;
+    }
+    .brand-badge{
+      width: 42px; height: 42px;
+      border-radius: 14px;
+      background:
+        radial-gradient(18px 18px at 30% 35%, rgba(255,255,255,.45), transparent 60%),
+        linear-gradient(135deg, rgba(124,58,237,.95), rgba(6,182,212,.85));
+      box-shadow: 0 12px 30px rgba(124,58,237,.25);
+      border: 1px solid rgba(255,255,255,.18);
+    }
+    .brand h1{
+      font-size: 1.05rem;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .brand .sub{
+      display:block;
+      font-size: .85rem;
+      color: var(--muted2);
+      margin-top: .1rem;
+    }
+
+    .auth-shell{
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .left-pane{
+      padding: 26px;
+      background:
+        radial-gradient(900px 500px at 10% 0%, rgba(124,58,237,.26), transparent 62%),
+        radial-gradient(650px 500px at 75% 45%, rgba(34,197,94,.14), transparent 58%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    @media (min-width: 992px){
+      .left-pane{
+        border-bottom: none;
+        border-right: 1px solid rgba(255,255,255,.08);
+        min-height: 620px;
+      }
+    }
+
+    .role-card{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 14px 14px;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+      height: 100%;
+    }
+    .role-card:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.16);
+    }
+    .role-title{
+      display:flex;
+      align-items:center;
+      gap:.6rem;
+      margin-bottom: .45rem;
+    }
+    .role-icon{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.16);
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(255,255,255,.06);
+    }
+    .role-icon svg{ opacity: .92; }
+    .role-card h3{
+      font-size: .98rem;
+      margin: 0;
+      letter-spacing:.2px;
+    }
+    .role-card ul{
+      margin: .5rem 0 0 0;
+      padding-left: 1.05rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    .role-card li{ margin: .25rem 0; }
+
+    .right-pane{
+      padding: 22px;
+      background:
+        radial-gradient(700px 500px at 95% 0%, rgba(6,182,212,.16), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035));
+    }
+
+    .nav-pills .nav-link{
+      color: rgba(255,255,255,.72);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      padding: .55rem .9rem;
+      border-radius: 999px;
+    }
+    .nav-pills .nav-link.active{
+      color: #0b1220;
+      background: rgba(255,255,255,.90);
+      border-color: rgba(255,255,255,.12);
+    }
+
+    .form-label{ color: rgba(255,255,255,.78); font-size: .9rem; }
+    .form-control, .form-select{
+      background: rgba(10, 15, 30, .55);
+      color: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 14px;
+      padding: .72rem .9rem;
+    }
+    .form-control::placeholder{ color: rgba(255,255,255,.40); }
+    .form-control:focus, .form-select:focus{
+      background: rgba(10, 15, 30, .68);
+      color: rgba(255,255,255,.95);
+      border-color: rgba(255,255,255,.22);
+      box-shadow: 0 0 0 .25rem rgba(124,58,237,.18);
+    }
+    .input-group-text{
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.75);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 14px;
+    }
+
+    .btn-primary{
+      background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(6,182,212,.9));
+      border: 0;
+      border-radius: 14px;
+      padding: .72rem 1rem;
+      box-shadow: 0 14px 35px rgba(124,58,237,.20);
+    }
+    .btn-primary:hover{ filter: brightness(1.03); }
+    .btn-outline-light{
+      border-radius: 14px;
+      border-color: rgba(255,255,255,.20);
+      color: rgba(255,255,255,.88);
+    }
+    .btn-outline-light:hover{
+      background: rgba(255,255,255,.12);
+      border-color: rgba(255,255,255,.26);
+      color: rgba(255,255,255,.95);
+    }
+
+    .tiny{
+      color: var(--muted2);
+      font-size: .86rem;
+    }
+
+    .divider{
+      display:flex;
+      align-items:center;
+      gap: .8rem;
+      color: rgba(255,255,255,.50);
+      font-size: .85rem;
+      margin: .95rem 0;
+    }
+    .divider:before, .divider:after{
+      content:"";
+      height: 1px;
+      background: rgba(255,255,255,.12);
+      flex: 1;
+    }
+
+    .toast-host{
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 1080;
+      width: min(420px, calc(100vw - 32px));
+    }
+
+    .toast{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(10, 15, 30, .78);
+      color: rgba(255,255,255,.92);
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .toast .toast-header{
+      background: transparent;
+      color: rgba(255,255,255,.85);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .toast .btn-close{ filter: invert(1); opacity: .75; }
+
+    .badge-soft{
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.78);
+      font-weight: 600;
+      font-size: .78rem;
+      padding: .35rem .55rem;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .82rem;
+      padding: .12rem .38rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.82);
+      white-space: nowrap;
+    }
+
+    a{ color: rgba(255,255,255,.88); }
+    a:hover{ color: rgba(255,255,255,.98); }
+
+    .footer-note{
+      color: rgba(255,255,255,.45);
+      font-size: .82rem;
+      text-align:center;
+      margin-top: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="toast-host" id="toastHost" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="page-wrap">
+    <div class="container">
+      <div class="row g-4 justify-content-center">
+        <div class="col-12 col-lg-11 col-xl-10">
+          <div class="auth-shell">
+            <div class="row g-0">
+              <!-- Left / Roles -->
+              <div class="col-12 col-lg-6 left-pane">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <div class="brand">
+                    <div class="brand-badge" aria-hidden="true"></div>
+                    <div>
+                      <h1>Unified Stalls Platform</h1>
+                      <span class="sub">Single checkout, per‑stall fulfillment</span>
+                    </div>
+                  </div>
+                  <span class="badge-soft">Multi‑role access</span>
+                </div>
+
+                <p class="tiny mb-3">
+                  Choose your role during registration. After login, you’ll be redirected to the right dashboard automatically.
+                </p>
+
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <div class="role-card">
+                      <div class="role-title">
+                        <div class="role-icon" style="box-shadow: 0 10px 26px rgba(34,197,94,.10);">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M7 18c-1.1 0-2-.9-2-2V6h14v10c0 1.1-.9 2-2 2H7Z" stroke="rgba(255,255,255,.92)" stroke-width="1.6"/>
+                            <path d="M9 6V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1" stroke="rgba(255,255,255,.92)" stroke-width="1.6"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <h3>Customer</h3>
+                          <div class="tiny">Buyer experience</div>
+                        </div>
+                      </div>
+                      <ul>
+                        <li>Add items from multiple stalls into one cart and checkout once</li>
+                        <li>Track one consolidated order with per‑stall fulfillment visibility</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <div class="role-card">
+                      <div class="role-title">
+                        <div class="role-icon" style="box-shadow: 0 10px 26px rgba(124,58,237,.12);">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M7 8h10M7 12h6M7 16h10" stroke="rgba(255,255,255,.92)" stroke-width="1.6" stroke-linecap="round"/>
+                            <path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v11A2.5 2.5 0 0 1 17 20H7a2.5 2.5 0 0 1-2.5-2.5v-11Z" stroke="rgba(255,255,255,.92)" stroke-width="1.6"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <h3>User</h3>
+                          <div class="tiny">Ops / integration</div>
+                        </div>
+                      </div>
+                      <ul>
+                        <li>Split a paid order into per‑stall sub‑orders and sync to each stall system</li>
+                        <li>Auto‑generate a versioned flowchart of the order‑splitting logic on deploy/CI</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <div class="role-card">
+                      <div class="role-title">
+                        <div class="role-icon" style="box-shadow: 0 10px 26px rgba(245,158,11,.12);">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M12 2l8 4v6c0 5-3.5 9.5-8 10-4.5-.5-8-5-8-10V6l8-4Z" stroke="rgba(255,255,255,.92)" stroke-width="1.6"/>
+                            <path d="M9.5 12.5 11 14l3.5-4" stroke="rgba(255,255,255,.92)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <h3>Admin</h3>
+                          <div class="tiny">Reliability / audit</div>
+                        </div>
+                      </div>
+                      <ul>
+                        <li>Retry failed split/sync steps safely with full auditability</li>
+                        <li>Centralized visibility across stalls and integrations</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <div class="role-card">
+                      <div class="role-title">
+                        <div class="role-icon" style="box-shadow: 0 10px 26px rgba(6,182,212,.12);">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M6 9h12M6 15h12" stroke="rgba(255,255,255,.92)" stroke-width="1.6" stroke-linecap="round"/>
+                            <path d="M4.5 7.5A2.5 2.5 0 0 1 7 5h10a2.5 2.5 0 0 1 2.5 2.5v9A2.5 2.5 0 0 1 17 19H7a2.5 2.5 0 0 1-2.5-2.5v-9Z" stroke="rgba(255,255,255,.92)" stroke-width="1.6"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <h3>Merchant</h3>
+                          <div class="tiny">Stall owner</div>
+                        </div>
+                      </div>
+                      <ul>
+                        <li>View and update only my stall’s sub‑orders in real time</li>
+                        <li>Receive synced orders generated from consolidated checkouts</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-3 tiny">
+                  Tip: Press <span class="kbd">Alt</span> + <span class="kbd">L</span> to focus Login, <span class="kbd">Alt</span> + <span class="kbd">R</span> for Register.
+                </div>
+              </div>
+
+              <!-- Right / Auth Forms -->
+              <div class="col-12 col-lg-6 right-pane">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div>
+                    <div class="tiny mb-1">Secure access</div>
+                    <h2 class="h4 mb-0">Sign in or create an account</h2>
+                  </div>
+                  <button class="btn btn-outline-light btn-sm" id="btnLogout" type="button" title="Clear session">
+                    Clear session
+                  </button>
+                </div>
+
+                <div class="mt-3">
+                  <ul class="nav nav-pills gap-2" id="authTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link active" id="login-tab" data-bs-toggle="pill" data-bs-target="#login-pane" type="button" role="tab" aria-controls="login-pane" aria-selected="true">
+                        Login
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="register-tab" data-bs-toggle="pill" data-bs-target="#register-pane" type="button" role="tab" aria-controls="register-pane" aria-selected="false">
+                        Register
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="tab-content mt-3">
+                  <!-- Login -->
+                  <div class="tab-pane fade show active" id="login-pane" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
+                    <form id="loginForm" class="mt-2" novalidate>
+                      <div class="mb-3">
+                        <label class="form-label" for="loginEmail">Email</label>
+                        <input class="form-control" id="loginEmail" type="email" autocomplete="email" placeholder="name@company.com" required />
+                        <div class="invalid-feedback">Please enter a valid email.</div>
+                      </div>
+
+                      <div class="mb-2">
+                        <label class="form-label" for="loginPassword">Password</label>
+                        <div class="input-group">
+                          <input class="form-control" id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••" minlength="6" required />
+                          <button class="btn btn-outline-light" type="button" id="toggleLoginPassword">Show</button>
+                          <div class="invalid-feedback">Password must be at least 6 characters.</div>
+                        </div>
+                      </div>
+
+                      <div class="d-flex align-items-center justify-content-between mt-2">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="rememberMe" />
+                          <label class="form-check-label tiny" for="rememberMe">Remember my email</label>
+                        </div>
+                        <a class="tiny text-decoration-none" href="#" id="forgotLink">Forgot password?</a>
+                      </div>
+
+                      <div class="divider">or</div>
+
+                      <div class="d-grid gap-2">
+                        <button class="btn btn-primary" type="submit" id="btnLogin">
+                          Login
+                        </button>
+                        <button class="btn btn-outline-light" type="button" id="btnDemoFill">
+                          Use demo credentials
+                        </button>
+                      </div>
+
+                      <p class="footer-note mb-0 mt-3">
+                        By continuing, you agree to the platform’s acceptable use and security policies.
+                      </p>
+                    </form>
+                  </div>
+
+                  <!-- Register -->
+                  <div class="tab-pane fade" id="register-pane" role="tabpanel" aria-labelledby="register-tab" tabindex="0">
+                    <form id="registerForm" class="mt-2" novalidate>
+                      <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                          <label class="form-label" for="regName">Full name</label>
+                          <input class="form-control" id="regName" type="text" autocomplete="name" placeholder="Alex Morgan" required />
+                          <div class="invalid-feedback">Name is required.</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                          <label class="form-label" for="regRole">Role</label>
+                          <select class="form-select" id="regRole" required>
+                            <option value="" selected disabled>Select a role…</option>
+                            <option value="customer">Customer</option>
+                            <option value="user">User</option>
+                            <option value="merchant">Merchant</option>
+                            <option value="admin">Admin</option>
+                          </select>
+                          <div class="invalid-feedback">Please select a role.</div>
+                        </div>
+
+                        <div class="col-12">
+                          <label class="form-label" for="regEmail">Email</label>
+                          <input class="form-control" id="regEmail" type="email" autocomplete="email" placeholder="name@company.com" required />
+                          <div class="invalid-feedback">Please enter a valid email.</div>
+                        </div>
+
+                        <div class="col-12">
+                          <label class="form-label" for="regPassword">Password</label>
+                          <div class="input-group">
+                            <input class="form-control" id="regPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" minlength="8" required />
+                            <button class="btn btn-outline-light" type="button" id="toggleRegPassword">Show</button>
+                            <div class="invalid-feedback">Password must be at least 8 characters.</div>
+                          </div>
+                          <div class="tiny mt-2" id="merchantHint" style="display:none;">
+                            Merchant accounts can be linked to a stall after registration (or during onboarding).
+                          </div>
+                        </div>
+
+                        <div class="col-12">
+                          <label class="form-label" for="regConfirm">Confirm password</label>
+                          <input class="form-control" id="regConfirm" type="password" autocomplete="new-password" placeholder="Repeat password" required />
+                          <div class="invalid-feedback" id="confirmFeedback">Please confirm your password.</div>
+                        </div>
+
+                        <div class="col-12">
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="regAgree" required />
+                            <label class="form-check-label tiny" for="regAgree">
+                              I agree to the Terms and acknowledge audit logging for security.
+                            </label>
+                            <div class="invalid-feedback">You must agree before registering.</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="d-grid gap-2 mt-3">
+                        <button class="btn btn-primary" type="submit" id="btnRegister">
+                          Create account
+                        </button>
+                        <button class="btn btn-outline-light" type="button" id="btnGoLogin">
+                          Already have an account? Go to login
+                        </button>
+                      </div>
+
+                      <p class="footer-note mb-0 mt-3">
+                        Role-based dashboards: <span class="kbd">/dashboard/customer</span>, <span class="kbd">/dashboard/user</span>, <span class="kbd">/dashboard/merchant</span>, <span class="kbd">/dashboard/admin</span>
+                      </p>
+                    </form>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-note">
+            © <span id="year"></span> Unified Stalls Platform. Secure role-based access.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS (for tabs/toasts) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    (function(){
+      const AUTH_TOKEN_KEY = "authToken";
+      const AUTH_ROLE_KEY  = "authRole";
+      const AUTH_USER_KEY  = "authUser";
+
+      const $ = (id) => document.getElementById(id);
+
+      function randomToken(len=32){
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let out = "";
+        for(let i=0;i<len;i++) out += chars[Math.floor(Math.random()*chars.length)];
+        return out;
+      }
+
+      function showToast({title="Notice", message="", variant="info"}){
+        const host = $("toastHost");
+        const id = "t_" + Math.random().toString(16).slice(2);
+
+        const accent = variant === "success" ? "rgba(34,197,94,.9)"
+                    : variant === "danger"  ? "rgba(239,68,68,.9)"
+                    : variant === "warning" ? "rgba(245,158,11,.95)"
+                    : "rgba(6,182,212,.9)";
+
+        const el = document.createElement("div");
+        el.className = "toast mb-2";
+        el.id = id;
+        el.setAttribute("role","alert");
+        el.setAttribute("aria-live","assertive");
+        el.setAttribute("aria-atomic","true");
+        el.innerHTML = `
+          <div class="toast-header">
+            <span style="display:inline-block;width:10px;height:10px;border-radius:99px;background:${accent};margin-right:.6rem;"></span>
+            <strong class="me-auto">${escapeHtml(title)}</strong>
+            <small class="text-white-50">now</small>
+            <button type="button" class="btn-close ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">${escapeHtml(message)}</div>
+        `;
+        host.appendChild(el);
+        const toast = new bootstrap.Toast(el, { delay: 3500 });
+        toast.show();
+        el.addEventListener("hidden.bs.toast", () => el.remove());
+      }
+
+      function escapeHtml(str){
+        return String(str).replace(/[&<>"']/g, (m) => ({
+          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+        }[m]));
+      }
+
+      function setSession({token, role, user}){
+        localStorage.setItem(AUTH_TOKEN_KEY, token);
+        localStorage.setItem(AUTH_ROLE_KEY, role);
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user || {}));
+      }
+
+      function clearSession(){
+        localStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem(AUTH_ROLE_KEY);
+        localStorage.removeItem(AUTH_USER_KEY);
+      }
+
+      function getDashboardPath(role){
+        const map = {
+          customer: "/dashboard/customer.html",
+          user: "/dashboard/user.html",
+          admin: "/dashboard/admin.html",
+          merchant: "/dashboard/merchant.html"
+        };
+        return map[role] || "/dashboard/index.html";
+      }
+
+      function redirectToDashboard(role){
+        const target = getDashboardPath(role);
+        // In a real app, use window.location.assign(target)
+        // Here we redirect as requested; if the file doesn't exist, user stays on same page.
+        window.location.href = target;
+      }
+
+      function validateForm(form){
+        form.classList.add("was-validated");
+        return form.checkValidity();
+      }
+
+      function saveRememberedEmail(email){
+        try {
+          localStorage.setItem("rememberedEmail", email);
+        } catch(_) {}
+      }
+
+      function loadRememberedEmail(){
+        try {
+          return localStorage.getItem("rememberedEmail") || "";
+        } catch(_) { return ""; }
+      }
+
+      function setActiveTab(tabId){
+        const btn = document.querySelector(`[data-bs-target="${tabId}"]`);
+        if(btn){
+          const tab = new bootstrap.Tab(btn);
+          tab.show();
+        }
+      }
+
+      // ---- Demo "auth" (client-only) ----
+      // You can replace these with real API calls:
+      // POST /api/login -> {token, role}
+      // POST /api/register -> {token, role}
+      const DEMO_ACCOUNTS = [
+        { email: "customer@demo.com",  password: "password123", role: "customer", name: "Demo Customer" },
+        { email: "user@demo.com",      password: "password123", role: "user",     name: "Demo User" },
+        { email: "admin@demo.com",     password: "password123", role: "admin",    name: "Demo Admin" },
+        { email: "merchant@demo.com",  password: "password123", role: "merchant", name: "Demo Merchant" }
+      ];
+
+      function findDemoAccount(email, password){
+        return DEMO_ACCOUNTS.find(a => a.email.toLowerCase() === String(email).toLowerCase().trim() && a.password === password);
+      }
+
+      // ---- Wire up UI ----
+      $("year").textContent = new Date().getFullYear();
+
+      // Remember email
+      const remembered = loadRememberedEmail();
+      if(remembered){
+        $("loginEmail").value = remembered;
+        $("rememberMe").checked = true;
+      }
+
+      // Toggle password buttons
+      function togglePassword(inputId, buttonId){
+        const input = $(inputId);
+        const btn = $(buttonId);
+        btn.addEventListener("click", () => {
+          const isPw = input.type === "password";
+          input.type = isPw ? "text" : "password";
+          btn.textContent = isPw ? "Hide" : "Show";
+        });
+      }
+      togglePassword("loginPassword", "toggleLoginPassword");
+      togglePassword("regPassword", "toggleRegPassword");
+
+      // Merchant hint
+      $("regRole").addEventListener("change", (e) => {
+        $("merchantHint").style.display = e.target.value === "merchant" ? "block" : "none";
+      });
+
+      // Go to login
+      $("btnGoLogin").addEventListener("click", () => setActiveTab("#login-pane"));
+
+      // Forgot password
+      $("forgotLink").addEventListener("click", (e) => {
+        e.preventDefault();
+        showToast({
+          title: "Password reset",
+          message: "In a real deployment, this would start a secure reset flow (email link / SSO).",
+          variant: "info"
+        });
+      });
+
+      // Clear session
+      $("btnLogout").addEventListener("click", () => {
+        clearSession();
+        showToast({ title: "Session cleared", message: "Local session data removed.", variant: "success" });
+      });
+
+      // Demo fill
+      $("btnDemoFill").addEventListener("click", () => {
+        // rotate through demo accounts based on current email
+        const current = $("loginEmail").value.trim().toLowerCase();
+        const idx = Math.max(0, DEMO_ACCOUNTS.findIndex(a => a.email === current));
+        const next = DEMO_ACCOUNTS[(idx + 1) % DEMO_ACCOUNTS.length];
+        $("loginEmail").value = next.email;
+        $("loginPassword").value = next.password;
+        showToast({ title: "Demo credentials", message: `Filled: ${next.email} (${next.role})`, variant: "success" });
+      });
+
+      // Login
+      $("loginForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const form = e.currentTarget;
+        if(!validateForm(form)) return;
+
+        const email = $("loginEmail").value.trim();
+        const password = $("loginPassword").value;
+
+        if($("rememberMe").checked) saveRememberedEmail(email);
+        else localStorage.removeItem("rememberedEmail");
+
+        const demo = findDemoAccount(email, password);
+        if(!demo){
+          showToast({ title: "Login failed", message: "Invalid credentials. Try a demo account via “Use demo credentials”.", variant: "danger" });
+          return;
+        }
+
+        const token = "tok_" + randomToken(40);
+        setSession({
+          token,
+          role: demo.role,
+          user: { email: demo.email, name: demo.name, role: demo.role, issuedAt: new Date().toISOString() }
+        });
+
+        showToast({ title: "Logged in", message: `Redirecting to ${demo.role} dashboard…`, variant: "success" });
+        setTimeout(() => redirectToDashboard(demo.role), 650);
+      });
+
+      // Register
+      $("registerForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const form = e.currentTarget;
+
+        // custom password match
+        const pw = $("regPassword").value;
+        const cf = $("regConfirm").value;
+        const match = pw && cf && pw === cf;
+
+        if(!match){
+          $("regConfirm").setCustomValidity("Passwords do not match.");
+          $("confirmFeedback").textContent = "Passwords do not match.";
+        } else {
+          $("regConfirm").setCustomValidity("");
+          $("confirmFeedback").textContent = "Please confirm your password.";
+        }
+
+        if(!validateForm(form)) return;
+
+        const name = $("regName").value.trim();
+        const role = $("regRole").value;
+        const email = $("regEmail").value.trim();
+
+        // Simulated successful registration
+        const token = "tok_" + randomToken(40);
+        setSession({
+          token,
+          role,
+          user: { email, name, role, issuedAt: new Date().toISOString() }
+        });
+
+        showToast({ title: "Account created", message: `Welcome, ${name}. Redirecting to ${role} dashboard…`, variant: "success" });
+        setTimeout(() => redirectToDashboard(role), 650);
+      });
+
+      // Keyboard shortcuts
+      window.addEventListener("keydown", (e) => {
+        if(!e.altKey) return;
+        if(e.key.toLowerCase() === "l"){
+          setActiveTab("#login-pane");
+          setTimeout(() => $("loginEmail").focus(), 100);
+        }
+        if(e.key.toLowerCase() === "r"){
+          setActiveTab("#register-pane");
+          setTimeout(() => $("regName").focus(), 100);
+        }
+      });
+
+      // If already logged in, redirect immediately
+      const existingToken = localStorage.getItem(AUTH_TOKEN_KEY);

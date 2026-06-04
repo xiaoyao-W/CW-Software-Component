@@ -1,0 +1,64 @@
+{
+  "user_stories": [
+    {
+      "id": 1,
+      "role": "Customer",
+      "goal": "Add items from multiple stalls into one cart and checkout once",
+      "benefit": "Pay one time with accurate totals and fees",
+      "acceptance_criteria": [
+        "Cart groups items by stall and shows per-stall subtotals plus overall total",
+        "Checkout processes a single payment and creates one platform order"
+      ]
+    },
+    {
+      "id": 2,
+      "role": "Platform",
+      "goal": "Split a paid order into per-stall sub-orders and sync to each stall system",
+      "benefit": "Merchants can fulfill independently without losing allocation accuracy",
+      "acceptance_criteria": [
+        "Sub-orders contain only that stall’s items with itemized taxes/fees allocations",
+        "Each sub-order is created in the corresponding stall system via connector/API"
+      ]
+    },
+    {
+      "id": 3,
+      "role": "Administrator",
+      "goal": "Retry failed split/sync steps safely with full auditability",
+      "benefit": "Reduce manual fixes and prevent duplicate sub-orders",
+      "acceptance_criteria": [
+        "Split/sync operations are idempotent using a stable order/sub-order key",
+        "Admin can view failure reason and trigger retry without creating duplicates"
+      ]
+    },
+    {
+      "id": 4,
+      "role": "Merchant",
+      "goal": "View and update only my stall’s sub-orders in real time",
+      "benefit": "Fulfill faster with clear scope and minimal tooling",
+      "acceptance_criteria": [
+        "Merchant portal/API lists only sub-orders for the authenticated stall",
+        "Status updates (e.g., confirmed/shipped) persist and propagate to the platform order"
+      ]
+    },
+    {
+      "id": 5,
+      "role": "Customer",
+      "goal": "Track one consolidated order with per-stall fulfillment visibility",
+      "benefit": "Understand what is happening without contacting support",
+      "acceptance_criteria": [
+        "Order page shows overall status plus per-stall sub-order statuses",
+        "Updates reflect latest merchant changes within a bounded delay"
+      ]
+    },
+    {
+      "id": 6,
+      "role": "Developer",
+      "goal": "Auto-generate a versioned flowchart of the order-splitting logic on deploy/CI",
+      "benefit": "Keep documentation current and reduce onboarding/debug time",
+      "acceptance_criteria": [
+        "CI generates and stores an SVG/PNG flowchart tied to the release version",
+        "Flowchart reflects current split steps and error/retry paths"
+      ]
+    }
+  ]
+}

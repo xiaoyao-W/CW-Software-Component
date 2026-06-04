@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Customer Dashboard</title>
+
+  <!-- Bootstrap 5 (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --bg: #0b1220;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.09);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+      --border: rgba(255,255,255,.12);
+      --primary: #4f8cff;
+      --accent: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    body{
+      background: radial-gradient(1200px 800px at 15% 10%, rgba(79,140,255,.18), transparent 50%),
+                  radial-gradient(1200px 800px at 90% 20%, rgba(34,197,94,.14), transparent 55%),
+                  radial-gradient(900px 700px at 40% 90%, rgba(245,158,11,.10), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .navbar{
+      background: rgba(10,16,28,.7) !important;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+    .navbar .nav-link{ color: var(--muted) !important; }
+    .navbar .nav-link.active, .navbar .nav-link:hover{ color: var(--text) !important; }
+    .brand-dot{
+      width:10px;height:10px;border-radius:50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display:inline-block; margin-right:.6rem;
+      box-shadow: 0 0 20px rgba(79,140,255,.35);
+    }
+
+    .container-xl{ max-width: 1200px; }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 30px rgba(0,0,0,.22);
+    }
+    .card-header{
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .glass{
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      backdrop-filter: blur(10px);
+    }
+
+    .muted{ color: var(--muted) !important; }
+    .small-muted{ color: var(--muted); font-size:.875rem; }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:.4rem;
+      padding:.25rem .55rem;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      font-size:.8rem;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .pill .dot{ width:8px;height:8px;border-radius:50%; display:inline-block; }
+    .dot.gray{ background:#94a3b8; }
+    .dot.blue{ background: var(--primary); }
+    .dot.green{ background: var(--accent); }
+    .dot.amber{ background: var(--warn); }
+    .dot.red{ background: var(--danger); }
+
+    .btn-primary{
+      background: linear-gradient(135deg, rgba(79,140,255,1), rgba(79,140,255,.75));
+      border-color: rgba(79,140,255,.5);
+    }
+    .btn-outline-light{
+      border-color: rgba(255,255,255,.25);
+      color: rgba(255,255,255,.85);
+    }
+    .btn-outline-light:hover{ background: rgba(255,255,255,.10); }
+
+    .form-control, .form-select{
+      background: rgba(255,255,255,.06) !important;
+      border: 1px solid rgba(255,255,255,.16) !important;
+      color: var(--text) !important;
+    }
+    .form-control::placeholder{ color: rgba(255,255,255,.45); }
+    .input-group-text{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.16);
+      color: var(--muted);
+    }
+
+    .table{
+      --bs-table-bg: transparent;
+      --bs-table-color: var(--text);
+      --bs-table-border-color: rgba(255,255,255,.12);
+    }
+    .table thead th{
+      color: rgba(255,255,255,.78);
+      font-weight: 600;
+    }
+
+    .section-title{
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+
+    .empty-state{
+      border: 1px dashed rgba(255,255,255,.22);
+      border-radius: 14px;
+      padding: 2rem;
+      text-align: center;
+      color: rgba(255,255,255,.75);
+      background: rgba(255,255,255,.03);
+    }
+
+    .order-card{
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .order-meta{
+      display:flex; flex-wrap:wrap; gap:.5rem 1rem; align-items:center;
+    }
+
+    .progress{
+      background: rgba(255,255,255,.10);
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-bar{
+      background: linear-gradient(90deg, rgba(79,140,255,1), rgba(34,197,94,1));
+    }
+
+    .list-group{
+      --bs-list-group-bg: rgba(255,255,255,.04);
+      --bs-list-group-border-color: rgba(255,255,255,.12);
+      --bs-list-group-color: var(--text);
+    }
+
+    .badge-soft{
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+      color: rgba(255,255,255,.85);
+      font-weight: 600;
+    }
+
+    .sticky-cart{
+      position: sticky; top: 1rem;
+    }
+
+    .toast-container{
+      z-index: 1080;
+    }
+
+    .nav-tabs{
+      border-bottom: 1px solid rgba(255,255,255,.14);
+    }
+    .nav-tabs .nav-link{
+      color: rgba(255,255,255,.70);
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+    }
+    .nav-tabs .nav-link.active{
+      color: rgba(255,255,255,.95);
+      border-bottom-color: rgba(79,140,255,.9);
+      background: transparent;
+    }
+
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .hr-soft{ border-color: rgba(255,255,255,.12); }
+  </style>
+</head>
+
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-xl">
+      <a class="navbar-brand d-flex align-items-center" href="#home" data-view="home">
+        <span class="brand-dot"></span>
+        <span class="fw-semibold">Customer Dashboard</span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navMain">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link active" href="#home" data-view="home">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#orders" data-view="orders">My Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="#cart" data-view="cart">
+            Cart <span class="badge rounded-pill text-bg-primary ms-1" id="navCartCount">0</span>
+          </a></li>
+          <li class="nav-item"><a class="nav-link" href="#profile" data-view="profile">Profile</a></li>
+        </ul>
+
+        <div class="d-flex gap-2 align-items-center">
+          <span class="small-muted d-none d-lg-inline">API: <span class="mono">http://127.0.0.1:5000</span></span>
+          <button class="btn btn-sm btn-outline-light" id="btnRefreshAll">Refresh</button>
+          <button class="btn btn-sm btn-outline-light" id="btnLogout">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- TOASTS -->
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="appToast" class="toast text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastBody">...</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <main class="container-xl py-4">
+    <!-- Top summary row -->
+    <div class="row g-3 mb-3">
+      <div class="col-lg-7">
+        <div class="glass p-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+              <div class="small-muted">Welcome back</div>
+              <h1 class="h4 mb-1 section-title" id="welcomeName">Customer</h1>
+              <div class="small-muted">Add items from multiple stalls into one cart and checkout once. Track one consolidated order with per-stall fulfillment visibility.</div>
+            </div>
+            <div class="d-flex gap-2">
+              <a class="btn btn-primary" href="#home" data-view="home">Browse Stalls</a>
+              <a class="btn btn-outline-light" href="#orders" data-view="orders">Track Orders</a>
+            </div>
+          </div>
+          <hr class="hr-soft my-3">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="p-3 glass">
+                <div class="small-muted">Open Orders</div>
+                <div class="h4 mb-0" id="statOpenOrders">—</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 glass">
+                <div class="small-muted">Cart Items</div>
+                <div class="h4 mb-0" id="statCartItems">0</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 glass">
+                <div class="small-muted">Total Spent (all-time)</div>
+                <div class="h4 mb-0" id="statSpent">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="section-title">Quick Cart</div>
+            <a href="#cart" data-view="cart" class="btn btn-sm btn-outline-light">Open Cart</a>
+          </div>
+          <div class="card-body">
+            <div id="quickCartBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Views -->
+    <div id="view-home" class="view">
+      <div class="row g-3">
+        <div class="col-lg-8">
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div>
+                  <div class="section-title">Browse Stalls & Items</div>
+                  <div class="small-muted">Add items from multiple stalls into one consolidated cart.</div>
+                </div>
+                <div class="d-flex gap-2">
+                  <div class="input-group input-group-sm" style="min-width: 260px;">
+                    <span class="input-group-text">Search</span>
+                    <input id="searchItems" type="text" class="form-control" placeholder="Item or stall name">
+                  </div>
+                  <button class="btn btn-sm btn-outline-light" id="btnReloadCatalog">Reload</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div id="catalogBody" class="row g-3"></div>
+
+              <div id="catalogEmpty" class="empty-state d-none">
+                <div class="fw-semibold mb-1">No items found</div>
+                <div class="small-muted">Try clearing your search or reload the catalog.</div>
+              </div>
+
+              <div id="catalogLoading" class="empty-state d-none">
+                <div class="fw-semibold mb-1">Loading catalog…</div>
+                <div class="small-muted">Fetching stalls and items from the API.</div>
+              </div>
+
+              <div id="catalogError" class="empty-state d-none">
+                <div class="fw-semibold mb-1">Could not load catalog</div>
+                <div class="small-muted" id="catalogErrorText">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card sticky-cart">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <div class="section-title">Checkout (One Cart)</div>
+              <span class="pill"><span class="dot blue"></span>Consolidated</span>
+            </div>
+            <div class="card-body">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="muted">Subtotal</span>
+                <span id="sidebarSubtotal" class="fw-semibold">—</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="muted">Stalls in cart</span>
+                <span id="sidebarStalls" class="fw-semibold">0</span>
+              </div>
+              <div class="d-flex justify-content-between mb-3">
+                <span class="muted">Items</span>
+                <span id="sidebarItems" class="fw-semibold">0</span>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small-muted">Delivery note (optional)</label>
+                <textarea id="checkoutNote" class="form-control" rows="2" placeholder="e.g., call when arrived"></textarea>
+              </div>
+
+              <div class="d-grid gap-2">
+                <button class="btn btn-primary" id="btnCheckout">Checkout Once</button>
+                <button class="btn btn-outline-light" id="btnClearCart">Clear Cart</button>
+              </div>
+
+              <hr class="hr-soft my-3">
+
+              <div class="small-muted mb-2">Per-stall visibility after checkout:</div>
+              <ul class="small-muted mb-0">
+                <li>One consolidated order ID</li>
+                <li>Each stall fulfills its portion independently</li>
+                <li>Track overall and per-stall status</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="view-orders" class="view d-none">
+      <div class="card">
+        <div class="card-header">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+              <div class="section-title">My Orders</div>
+              <div class="small-muted">Track consolidated orders with per-stall fulfillment status.</div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-light" id="btnReloadOrders">Reload</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div id="ordersLoading" class="empty-state d-none">
+            <div class="fw-semibold mb-1">Loading orders…</div>
+            <div class="small-muted">Fetching order history from the API.</div>
+          </div>
+
+          <div id="ordersEmpty" class="empty-state d-none">
+            <div class="fw-semibold mb-1">No orders yet</div>
+            <div class="small-muted">Add items to your cart and checkout once.</div>
+          </div>
+
+          <div id="ordersError" class="empty-state d-none">
+            <div class="fw-semibold mb-1">Could not load orders</div>
+            <div class="small-muted" id="ordersErrorText">—</div>
+          </div>
+
+          <div id="ordersList" class="d-flex flex-column gap-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-cart" class="view d-none">
+      <div class="row g-3">
+        <div class="col-lg-8">
+          <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between gap-2">
+              <div>
+                <div class="section-title">Cart</div>
+                <div class="small-muted">Combine items from multiple stalls and checkout once.</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-light" id="btnCartReloadCatalog">Add more items</button>
+                <button class="btn btn-sm btn-outline-light" id="btnCartClear">Clear</button>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div id="cartEmpty" class="empty-state d-none">
+                <div class="fw-semibold mb-1">Your cart is empty</div>
+                <div class="small-muted">Browse items and add them to your cart.</div>
+                <div class="mt-3">
+                  <a href="#home" data-view="home" class="btn btn-primary">Browse</a>
+                </div>
+              </div>
+
+              <div id="cartTableWrap" class="table-responsive d-none">
+                <table class="table align-middle">
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Stall</th>
+                      <th class="text-end">Price</th>
+                      <th style="width: 170px;">Qty</th>
+                      <th class="text-end">Line Total</th>
+                      <th class="text-end">Remove</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cartTbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card sticky-cart">
+            <div class="card-header">
+              <div class="section-title">Summary</div>
+            </div>
+            <div class="card-body">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="muted">Subtotal</span>
+                <span id="cartSubtotal" class="fw-semibold">—</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="muted">Stalls</span>
+                <span id="cartStalls" class="fw-semibold">0</span>
+              </div>
+              <div class="d-flex justify-content-between mb-3">
+                <span class="muted">Items</span>
+                <span id="cartItems" class="fw-semibold">0</span>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small-muted">Delivery note (optional)</label>
+                <textarea id="cartCheckoutNote" class="form-control" rows="2" placeholder="e.g., no peanuts, leave at door"></textarea>
+              </div>
+
+              <div class="d-grid gap-2">
+                <button class="btn btn-primary" id="btnCartCheckout">Checkout</button>
+                <a href="#orders" data-view="orders" class="btn btn-outline-light">View Orders</a>
+              </div>
+
+              <hr class="hr-soft my-3">
+
+              <div class="small-muted">
+                Checkout creates <span class="fw-semibold">one consolidated order</span>. Each stall will show its own fulfillment status inside the order card.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-profile" class="view d-none">
+      <div class="card">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div>
+            <div class="section-title">Profile</div>
+            <div class="small-muted">Manage your local session for this demo page.</div>
+          </div>
+          <button class="btn btn-sm btn-outline-light" id="btnProfileReload">Reload</button>
+        </div>
+
+        <div class="card-body">
+          <ul class="nav nav-tabs mb-3" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabAccount" type="button" role="tab">Account</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabApi" type="button" role="tab">API Settings</button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="tabAccount" role="tabpanel">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label small-muted">Display name</label>
+                  <input id="profileName" class="form-control" placeholder="e.g., Alex" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small-muted">Email (optional)</label>
+                  <input id="profileEmail" type="email" class="form-control" placeholder="e.g., alex@example.com" />
+                </div>
+                <div class="col-12">
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-primary" id="btnSaveProfile">Save</button>
+                    <button class="btn btn-outline-light" id="btnResetProfile">Reset</button>
+                  </div>
+                  <div class="small-muted mt-2">Saved locally in your browser (localStorage). API auth is not implemented in this standalone page.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tabApi" role="tabpanel">
+              <div class="row g-3">
+                <div class="col-md-8">
+                  <label class="form-label small-muted">Base URL</label>
+                  <input class="form-control mono" value="http://127.0.0.1:5000" disabled />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small-muted">Connection test</label>
+                  <button class="btn btn-outline-light w-100" id="btnPing">Ping API</button>
+                </div>
+                <div class="col-12">
+                  <div class="glass p-3">
+                    <div class="small-muted mb-1">Notes</div>
+                    <ul class="small-muted mb-0">
+                      <li>This dashboard uses Fetch API calls to <span class="mono">http://127.0.0.1:5000</span>.</li>
+                      <li>Endpoints may vary. The app includes fallbacks and a mock mode if endpoints are missing.</li>
+                      <li>Cart is stored locally and can be checked out to create a consolidated order.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Order Details Modal -->
+  <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content" style="background: rgba(10,16,28,.92); border: 1px solid rgba(255,255,255,.16);">
+        <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,.12);">
+          <h5 class="modal-title">Order Details</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="orderModalBody"></div>
+        <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,.12);">
+          <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-outline-light" id="btnRefreshOrderInModal">Refresh Status</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ===== CONFIG =====
+    const API_BASE = "http://127.0.0.1:5000";
+    const LS_KEYS = {
+      cart: "cust_cart_v1",
+      profile: "cust_profile_v1",
+      mockOrders: "cust_mock_orders_v1"
+    };
+
+    // ===== UTIL =====
+    const money = (n) => {
+      const x = Number(n ?? 0);
+      return x.toLocaleString(undefined, { style: "currency", currency: "USD" });
+    };
+
+    const safeId = (v) => String(v ?? "").replace(/[^\w-]/g, "_");
+
+    function showToast(msg){
+      const el = document.getElementById("appToast");
+      document.getElementById("toastBody").textContent = msg;
+      const t = bootstrap.Toast.getOrCreateInstance(el, { delay: 2600 });
+      t.show();
+    }
+
+    function setActiveNav(view){
+      document.querySelectorAll(".navbar .nav-link").forEach(a => a.classList.remove("active"));
+      const link = document.querySelector(`.navbar .nav-link[data-view="${view}"]`);
+      if(link) link.classList.add("active");
+    }
+
+    function showView(view){
+      document.querySelectorAll(".view").forEach(v => v.classList.add("d-none"));
+      const el = document.getElementById(`view-${view}`);
+      if(el) el.classList.remove("d-none");
+      setActiveNav(view);
+      if(view === "home") renderQuickCart();
+      if(view === "cart") renderCart();
+      if(view === "orders") loadOrders();
+      if(view === "profile") loadProfile();
+    }
+
+    function getProfile(){
+      try{
+        return JSON.parse(localStorage.getItem(LS_KEYS.profile)) || { name: "Customer", email: "" };
+      }catch{
+        return { name: "Customer", email: "" };
+      }
+    }
+
+    function setProfile(p){
+      localStorage.setItem(LS_KEYS.profile, JSON.stringify(p));
+    }
+
+    function getCart(){
+      try{
+        const cart = JSON.parse(localStorage.getItem(LS_KEYS.cart)) || { items: [] };
+        cart.items = Array.isArray(cart.items) ? cart.items : [];
+        return cart;
+      }catch{
+        return { items: [] };
+      }
+    }
+
+    function setCart(cart){
+      localStorage.setItem(LS_KEYS.cart, JSON.stringify(cart));
+      updateCartBadges();
+      updateSummaries();
+      renderQuickCart();
+    }
+
+    function cartMetrics(cart){
+      const items = cart.items || [];
+      const itemCount = items.reduce((a,i) => a + Number(i.qty || 0), 0);
+      const stallsSet = new Set(items.map(i => i.stallId ?? i.stallName ?? "unknown"));
+      const stallsCount = stallsSet.size;
+      const subtotal = items.reduce((a,i) => a + Number(i.price || 0) * Number(i.qty || 0), 0);
+      return { itemCount, stallsCount, subtotal };
+    }
+
+    function updateCartBadges(){
+      const cart = getCart();
+      const { itemCount } = cartMetrics(cart);
+      document.getElementById("navCartCount").textContent = itemCount;
+      document.getElementById("statCartItems").textContent = itemCount;
+    }
+
+    function updateSummaries(){
+      const cart = getCart();
+      const { itemCount, stallsCount, subtotal } = cartMetrics(cart);
+
+      // Sidebar summaries
+      const sSub = document.getElementById("sidebarSubtotal");
+      const sStalls = document.getElementById("sidebarStalls");
+      const sItems = document.getElementById("sidebarItems");
+      if(sSub) sSub.textContent = money(subtotal);
+      if(sStalls) sStalls.textContent = stallsCount;
+      if(sItems) sItems.textContent = itemCount;
+
+      // Cart summaries
+      const cSub = document.getElementById("cartSubtotal");
+      const cStalls = document.getElementById("cartStalls");
+      const cItems = document.getElementById("cartItems");
+      if(cSub) cSub.textContent = money(subtotal);
+      if(cStalls) cStalls.textContent = stallsCount;
+      if(cItems) cItems.textContent = itemCount;
+    }
+
+    async function apiFetch(path, options = {}){
+      const url = `${API_BASE}${path}`;
+      const opts = {
+        headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+        ...options
+      };
+      const res = await fetch(url, opts);
+      const ct = res.headers.get("content-type") || "";
+      const isJson = ct.includes("application/json");
+      const data = isJson ? await res.json().catch(() => null) : await res.text().catch(() => null);
+      if(!res.ok){
+        const msg = (data && data.message) ? data.message : (typeof data === "string" ? data : `HTTP ${res.status}`);
+        throw new Error(msg);
+      }
+      return data;
+    }
+
+    // ===== CATALOG (Stalls/Items) =====
+    let CATALOG = []; // normalized list of items: {id,name,price,stallId,stallName,desc}
+
+    function normalizeCatalog(payload){
+      // Accept flexible shapes:
+      // A) {stalls:[{id,name,items:[{id,name,price,description}]}]}
+      // B) {items:[{id,name,price,stall:{id,name}}]}
+      // C) [{...}] as items or stalls
+      const out = [];
+
+      const addItem = (item, stall) => {
+        const price = Number(item.price ?? item.unit_price ?? item.amount ?? 0);
+        out.push({
+          id: item.id ?? item.item_id ?? item.sku ?? `${stall?.id ?? stall?.name ?? "stall"}-${item.name ?? "item"}`,
+          name: item.name ?? item.title ?? "Item",
+          price,
+          stallId: stall?.id ?? item.stall_id ?? item.stallId ?? item.stall?.id ?? stall?.name ?? item.stall?.name ?? "stall",
+          stallName: stall?.name ?? item.stall_name ?? item.stallName ?? item.stall?.name ?? "Stall",
+          desc: item.description ?? item.desc ?? item.details ?? ""
+        });
+      };
+
+      const parseStalls = (stalls) => {
+        (stalls || []).forEach(s => {
+          const items = s.items ?? s.products ?? s.menu ?? [];
+          (items || []).forEach(it => addItem(it, s));
+        });
+      };
+
+      if(Array.isArray(payload)){
+        // guess array of stalls or items
+        if(payload.length && (payload[0].items || payload[0].menu || payload[0].products)){
+          parseStalls(payload);
+        }else{
+          payload.forEach(it => addItem(it, it.stall ?? { id: it.stall_id ?? it.stallId, name: it.stall_name ?? it.stallName }));
+        }
+      }else if(payload && typeof payload === "object"){
+        if(Array.isArray(payload.stalls)) parseStalls(payload.stalls);
+        else if(Array.isArray(payload.items)) payload.items.forEach(it => addItem(it, it.stall ?? { id: it.stall_id ?? it.stallId, name: it.stall_name ?? it.stallName }));
+        else if(Array.isArray(payload.data)) {
+          // sometimes {data:[...]}
+          const d = payload.data;
+          if(d.length && (d[0].items || d[0].menu || d[0].products)) parseStalls(d);
+          else d.forEach(it => addItem(it, it.stall ?? { id: it.stall_id ?? it.stallId, name: it.stall_name ?? it.stallName }));
+        }
+      }
+
+      // de-dupe by (stallId,id)
+      const seen = new Set();
+      return out.filter(i => {
+        const k = `${i.stallId}::${i.id}`;
+        if(seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+    }
+
+    function mockCatalog(){
+      return normalizeCatalog({
+        stalls: [
+          { id: "s1", name: "Noodle Corner", items: [
+            { id: "i1", name: "Chicken Ramen", price: 9.5, description: "Rich broth, springy noodles" },
+            { id: "i2", name: "Veg Udon", price: 8.0, description: "Comforting udon with veggies" }
+          ]},
+          { id: "s2", name: "Fresh Drinks", items: [
+            { id: "i3", name: "Iced Lemon Tea", price: 3.25, description: "Refreshing citrus tea" },
+            { id: "i4", name: "Mango Smoothie", price: 4.75, description: "Thick and fruity" }
+          ]},
+          { id: "s3", name: "Grill House", items: [
+            { id: "i5", name: "Grilled Chicken Wrap", price: 7.25, description: "Smoky grilled chicken" },
+            { id: "i6", name: "Fries", price: 2.75, description: "Crispy golden fries" }
+          ]}
+        ]
+      });
+    }
+
+    function setCatalogState(state, errorText=""){
+      const loading = document.getElementById("catalogLoading");
+      const empty = document.getElementById("catalogEmpty");
+      const err = document.getElementById("catalogError");
+      const body = document.getElementById("catalogBody");
+      const errText = document.getElementById("catalogErrorText");
+
+      loading.classList.add("d-none");
+      empty.classList.add("d-none");
+      err.classList.add("d-none");
+      body.classList.remove("d-none");
+
+      if(state === "loading"){
+        body.classList.add("d-none");
+        loading.classList.remove("d-none");
+      }else if(state === "empty"){
+        body.classList.add("d-none");
+        empty.classList.remove("d-none");
+      }else if(state === "error"){
+        body.classList.add("d-none");
+        err.classList.remove("d-none");
+        errText.textContent = errorText || "Unknown error";
+      }
+    }
+
+    function renderCatalog(filterText=""){
+      const q = (filterText || "").trim().toLowerCase();
+      const body = document.getElementById("catalogBody");
+      body.innerHTML = "";
+
+      const filtered = (CATALOG || []).filter(i => {
+        if(!q) return true;
+        return (i.name || "").toLowerCase().includes(q) || (i.stallName || "").toLowerCase().includes(q);
+      });
+
+      if(filtered.length === 0){

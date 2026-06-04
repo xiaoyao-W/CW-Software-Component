@@ -1,0 +1,635 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Multi‑Role Marketplace Platform</title>
+
+  <!-- Bootstrap 5 (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+  <style>
+    :root{
+      --bg0:#0b1220;
+      --bg1:#0f1b2e;
+      --card:#0f223a;
+      --card2:#0c1b30;
+      --border: rgba(255,255,255,.10);
+      --muted: rgba(255,255,255,.78);
+      --text: #ffffff;
+      --accent:#6ea8fe;
+      --accent2:#20c997;
+      --shadow: 0 18px 40px rgba(0,0,0,.38);
+      --radius: 18px;
+    }
+
+    html, body{
+      height: 100%;
+      background: radial-gradient(1200px 500px at 20% 0%, rgba(110,168,254,.18), transparent 60%),
+                  radial-gradient(900px 400px at 90% 10%, rgba(32,201,151,.14), transparent 55%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1));
+      color: var(--text);
+    }
+
+    /* Ensure all descriptive text is white (#ffffff) */
+    p, li, small, .text-muted, .lead, .card-text, .form-text {
+      color: var(--text) !important;
+      opacity: .92;
+    }
+
+    a{ color: #cfe2ff; }
+    a:hover{ color: #ffffff; }
+
+    .navbar{
+      background: rgba(10, 16, 28, .65);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .navbar-brand{
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+    .nav-link{
+      color: rgba(255,255,255,.92) !important;
+    }
+    .nav-link:hover{
+      color: #ffffff !important;
+    }
+
+    .btn-accent{
+      background: linear-gradient(90deg, var(--accent), #9ec5fe);
+      border: 0;
+      color: #071426;
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(110,168,254,.18);
+    }
+    .btn-accent:hover{
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+    .btn-outline-glass{
+      border: 1px solid rgba(255,255,255,.20);
+      color: #ffffff;
+      background: rgba(255,255,255,.06);
+    }
+    .btn-outline-glass:hover{
+      background: rgba(255,255,255,.10);
+      border-color: rgba(255,255,255,.30);
+      transform: translateY(-1px);
+    }
+
+    .hero{
+      padding-top: 5.25rem;
+      padding-bottom: 2.75rem;
+    }
+    .hero h1{
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.4px;
+    }
+    .hero .subtitle{
+      max-width: 880px;
+      margin: 0 auto;
+      opacity: .95;
+    }
+    .hero-image-wrap{
+      margin: 1.2rem auto 1rem auto;
+      max-width: 1100px;
+    }
+    .hero-image{
+      width: 100%;
+      height: auto;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      display: block;
+      background: rgba(0,0,0,.08);
+    }
+
+    .section{
+      padding: 1.5rem 0 4rem 0;
+    }
+
+    .card.role-card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 26px rgba(0,0,0,.28);
+      overflow: hidden;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      height: 100%;
+      position: relative;
+    }
+    .card.role-card:hover{
+      transform: translateY(-4px);
+      box-shadow: 0 22px 52px rgba(0,0,0,.42);
+      border-color: rgba(255,255,255,.22);
+      background: linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.035));
+    }
+
+    .role-badge{
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .35rem .65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      font-weight: 700;
+      letter-spacing: .2px;
+      font-size: .86rem;
+      color: #ffffff;
+    }
+    .dot{
+      width: .6rem;
+      height: .6rem;
+      border-radius: 999px;
+      display: inline-block;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(110,168,254,.16);
+    }
+    .dot.green{
+      background: var(--accent2);
+      box-shadow: 0 0 0 4px rgba(32,201,151,.14);
+    }
+    .dot.amber{
+      background: #ffd43b;
+      box-shadow: 0 0 0 4px rgba(255,212,59,.14);
+    }
+    .dot.red{
+      background: #ff6b6b;
+      box-shadow: 0 0 0 4px rgba(255,107,107,.14);
+    }
+
+    .steps{
+      margin: .75rem 0 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .steps li{
+      padding: .55rem .75rem;
+      margin: .5rem 0;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+    }
+    .steps .step-title{
+      font-weight: 800;
+      margin-bottom: .1rem;
+      color: #ffffff;
+    }
+    .steps .step-desc{
+      margin: 0;
+      color: #ffffff;
+      opacity: .92;
+      font-size: .95rem;
+      line-height: 1.35;
+    }
+
+    .mini-panel{
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.05);
+      box-shadow: 0 14px 30px rgba(0,0,0,.30);
+      overflow: hidden;
+    }
+    .mini-panel .panel-head{
+      padding: 1rem 1rem .75rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+    }
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .92rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #ffffff;
+      margin: 0;
+      padding: 1rem;
+      background: rgba(0,0,0,.16);
+    }
+    .status-pill{
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .35rem .65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: .85rem;
+    }
+
+    footer{
+      border-top: 1px solid var(--border);
+      background: rgba(10, 16, 28, .55);
+      padding: 1.25rem 0;
+    }
+
+    /* Accessibility focus */
+    :focus-visible{
+      outline: 3px solid rgba(110,168,254,.75);
+      outline-offset: 3px;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 575.98px){
+      .hero{
+        padding-top: 4.75rem;
+      }
+      .hero h1{
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Nav -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="6" width="18" height="14" rx="2" stroke="#ffffff" stroke-width="1.8"/>
+          <path d="M8 6V5a3 3 0 0 1 6 0v1" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M3 10h18" stroke="#ffffff" stroke-width="1.8"/>
+          <circle cx="9" cy="17" r="1.5" fill="#ffffff"/>
+          <circle cx="17" cy="17" r="1.5" fill="#ffffff"/>
+          <path d="M7 10v-2a5 5 0 0 1 10 0v2" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        StallSplit Platform
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNav"
+              aria-controls="topNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="topNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+          <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
+          <li class="nav-item ms-lg-2">
+            <button class="btn btn-sm btn-accent" id="btnHealth" type="button">System Status</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero (Centered title -> subtitle -> image -> subtitle) -->
+  <header class="hero">
+    <div class="container text-center">
+      <h1 class="display-5 mb-3">One Checkout. Many Stalls. Fully Auditable Fulfillment.</h1>
+      <p class="subtitle lead mb-3">
+        Customers buy across multiple stalls in a single cart. The platform automatically splits and syncs sub-orders to each stall’s system with
+        versioned, deploy-time flow documentation and safe retries.
+      </p>
+
+      <div class="hero-image-wrap">
+        <img
+          src="/static/images/hero_banner.png"
+          alt="Platform hero banner showing multi-stall ordering and fulfillment"
+          class="hero-image"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+
+      <p class="subtitle mb-4">
+        Track one consolidated order while each stall fulfills its own sub-order in real time—without losing end-to-end visibility, audit trails, or operational control.
+      </p>
+
+      <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+        <a class="btn btn-accent px-4 py-2" href="/register">Create an Account</a>
+        <a class="btn btn-outline-glass px-4 py-2" href="/login">Sign In</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div class="row g-4 align-items-stretch">
+        <!-- Role Cards (2-column responsive grid) -->
+        <div class="col-12 col-lg-6">
+          <div class="card role-card">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center justify-content-between gap-3">
+                <div class="role-badge"><span class="dot"></span>Customer</div>
+                <span class="status-pill" id="customerStatus">Journey Ready</span>
+              </div>
+              <h2 class="h4 mt-3 mb-2" style="color: #ffffff;">Shop multiple stalls, checkout once</h2>
+              <p class="mb-3" style="color: #ffffff;">
+                Build one cart from many stalls, pay one time, and track one consolidated order with per‑stall fulfillment visibility.
+              </p>
+
+              <ul class="steps">
+                <li>
+                  <div class="step-title">1) Discover & Add to Cart</div>
+                  <p class="step-desc">Add items from multiple stalls into a single cart—no separate checkouts.</p>
+                </li>
+                <li>
+                  <div class="step-title">2) Pay Once</div>
+                  <p class="step-desc">Complete one payment for the full cart total, including per‑stall line items.</p>
+                </li>
+                <li>
+                  <div class="step-title">3) Track One Order</div>
+                  <p class="step-desc">See one consolidated order timeline with each stall’s fulfillment status and updates.</p>
+                </li>
+              </ul>
+
+              <div class="d-flex gap-2 mt-3">
+                <a class="btn btn-outline-glass" href="/register">Start as Customer</a>
+                <button class="btn btn-outline-glass" type="button" data-role="customer" data-action="preview">Preview Order Tracking</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+          <div class="card role-card">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center justify-content-between gap-3">
+                <div class="role-badge"><span class="dot green"></span>Platform User (Ops/Engineer)</div>
+                <span class="status-pill" id="opsStatus">CI/Deploy Visible</span>
+              </div>
+              <h2 class="h4 mt-3 mb-2" style="color: #ffffff;">Split orders, sync sub-orders, auto-document the logic</h2>
+              <p class="mb-3" style="color: #ffffff;">
+                After payment, the system splits a paid order into per‑stall sub-orders and synchronizes them to each stall system.
+                On deploy/CI, a versioned flowchart of the splitting logic is generated automatically.
+              </p>
+
+              <ul class="steps">
+                <li>
+                  <div class="step-title">1) Receive Paid Order Event</div>
+                  <p class="step-desc">A single paid order triggers the splitting pipeline.</p>
+                </li>
+                <li>
+                  <div class="step-title">2) Split into Sub‑Orders</div>
+                  <p class="step-desc">Items are grouped by stall; each group becomes a sub-order with references to the parent order.</p>
+                </li>
+                <li>
+                  <div class="step-title">3) Sync + Versioned Flowchart</div>
+                  <p class="step-desc">Sub-orders sync to stall systems, and CI emits a versioned flowchart artifact on deploy.</p>
+                </li>
+              </ul>
+
+              <div class="d-flex gap-2 mt-3">
+                <a class="btn btn-outline-glass" href="/login">Ops Console Login</a>
+                <button class="btn btn-outline-glass" type="button" data-role="ops" data-action="flowchart">View Latest Flowchart (API)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+          <div class="card role-card">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center justify-content-between gap-3">
+                <div class="role-badge"><span class="dot amber"></span>Merchant (Stall Owner)</div>
+                <span class="status-pill" id="merchantStatus">Real‑Time Updates</span>
+              </div>
+              <h2 class="h4 mt-3 mb-2" style="color: #ffffff;">See only your stall's sub-orders in real time</h2>
+              <p class="mb-3" style="color: #ffffff;">
+                Merchants access just their own sub-orders and can update fulfillment status (accept, prepare, ready, completed) with immediate customer visibility.
+              </p>
+
+              <ul class="steps">
+                <li>
+                  <div class="step-title">1) Authenticate as Merchant</div>
+                  <p class="step-desc">Role-based access ensures you see only your stall’s sub-orders.</p>
+                </li>
+                <li>
+                  <div class="step-title">2) Receive Sub‑Orders</div>
+                  <p class="step-desc">New sub-orders arrive instantly once the platform splits and syncs the parent order.</p>
+                </li>
+                <li>
+                  <div class="step-title">3) Update Fulfillment</div>
+                  <p class="step-desc">Update statuses in real time; the customer’s consolidated view reflects your progress.</p>
+                </li>
+              </ul>
+
+              <div class="d-flex gap-2 mt-3">
+                <a class="btn btn-outline-glass" href="/login">Merchant Login</a>
+                <button class="btn btn-outline-glass" type="button" data-role="merchant" data-action="subscribe">Test Real‑Time Feed (Demo)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+          <div class="card role-card">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center justify-content-between gap-3">
+                <div class="role-badge"><span class="dot red"></span>Admin</div>
+                <span class="status-pill" id="adminStatus">Audited Recovery</span>
+              </div>
+              <h2 class="h4 mt-3 mb-2" style="color: #ffffff;">Safely retry split/sync steps with full auditability</h2>
+              <p class="mb-3" style="color: #ffffff;">
+                When a split/sync step fails, admins can retry idempotently, inspect step-by-step history, and maintain a complete audit trail for compliance.
+              </p>
+
+              <ul class="steps">
+                <li>
+                  <div class="step-title">1) Detect Failure</div>
+                  <p class="step-desc">Identify failed pipeline steps with timestamps, payload hashes, and error context.</p>
+                </li>
+                <li>
+                  <div class="step-title">2) Retry Safely</div>
+                  <p class="step-desc">Re-run only failed steps using idempotency keys and guarded side effects.</p>
+                </li>
+                <li>
+                  <div class="step-title">3) Audit & Export</div>
+                  <p class="step-desc">Review immutable logs of every action and export evidence for audits.</p>
+                </li>
+              </ul>
+
+              <div class="d-flex gap-2 mt-3">
+                <a class="btn btn-outline-glass" href="/login">Admin Login</a>
+                <button class="btn btn-outline-glass" type="button" data-role="admin" data-action="audit">Fetch Audit Sample (API)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live API Panel -->
+        <div class="col-12">
+          <div class="mini-panel">
+            <div class="panel-head d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center">
+              <div>
+                <div class="h5 mb-1">Live Preview Panel (Fetch API)</div>
+                <p class="mb-0">
+                  Buttons above call example endpoints using <span class="mono" style="display:inline; padding:.1rem .35rem; border-radius:10px; border:1px solid rgba(255,255,255,.12); background: rgba(0,0,0,.14);">fetch()</span>.
+                  Replace endpoints with your backend routes.
+                </p>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-glass" type="button" id="btnClear">Clear Output</button>
+                <button class="btn btn-outline-glass" type="button" id="btnDemo">Run Demo Request</button>
+              </div>
+            </div>
+            <pre class="mono" id="output" aria-live="polite">Ready. Click a role action to load sample data.</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+      <small>© <span id="year"></span> StallSplit Platform — Multi-stall checkout and audited order splitting.</small>
+      <small>
+        <a href="/login" class="text-decoration-none">Login</a>
+        <span class="px-2">•</span>
+        <a href="/register" class="text-decoration-none">Register</a>
+        <span class="px-2">•</span>
+        <a href="/" class="text-decoration-none">Home</a>
+      </small>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+          crossorigin="anonymous"></script>
+
+  <script>
+    const outputEl = document.getElementById('output');
+
+    function setOutput(objOrText) {
+      if (typeof objOrText === 'string') {
+        outputEl.textContent = objOrText;
+      } else {
+        outputEl.textContent = JSON.stringify(objOrText, null, 2);
+      }
+    }
+
+    async function fetchJSON(url, options = {}) {
+      const res = await fetch(url, {
+        method: options.method || 'GET',
+        headers: {
+          'Accept': 'application/json',
+          ...(options.headers || {})
+        },
+        body: options.body
+      });
+
+      const contentType = res.headers.get('content-type') || '';
+      const isJSON = contentType.includes('application/json');
+
+      if (!res.ok) {
+        const errBody = isJSON ? await res.json().catch(() => ({})) : await res.text().catch(() => '');
+        const error = {
+          ok: false,
+          status: res.status,
+          statusText: res.statusText,
+          url,
+          body: errBody
+        };
+        throw error;
+      }
+
+      return isJSON ? res.json() : res.text();
+    }
+
+    function mockPayload(kind) {
+      const now = new Date().toISOString();
+      if (kind === 'customer') {
+        return {
+          consolidatedOrderId: "ORD-2026-000418",
+          status: "IN_PROGRESS",
+          stalls: [
+            { stallId: "STALL-12", name: "Saffron Bites", subOrderId: "SUB-12-991", fulfillment: "PREPARING" },
+            { stallId: "STALL-07", name: "Green Bowl", subOrderId: "SUB-07-144", fulfillment: "ACCEPTED" }
+          ],
+          lastUpdatedAt: now
+        };
+      }
+      if (kind === 'ops') {
+        return {
+          artifact: "order_split_flowchart",
+          version: "v2026.06.04+ci.1287",
+          generatedAt: now,
+          notes: "Flowchart generated during CI deploy; use as versioned reference for runtime behavior."
+        };
+      }
+      if (kind === 'merchant') {
+        return {
+          stallId: "STALL-12",
+          stallName: "Saffron Bites",
+          activeSubOrders: [
+            { subOrderId: "SUB-12-991", status: "PREPARING", etaMinutes: 18, updatedAt: now }
+          ]
+        };
+      }
+      if (kind === 'admin') {
+        return {
+          pipelineRunId: "RUN-88f0a9",
+          failedStep: "sync_to_stall_system",
+          idempotencyKey: "idem_5a2b7e9c",
+          lastError: "Timeout communicating with STALL-07 adapter",
+          retryPolicy: "safe_retry_with_audit_log",
+          auditedAt: now
+        };
+      }
+      return { message: "Demo payload", at: now };
+    }
+
+    async function tryAPIOrFallback(url, fallbackKind) {
+      setOutput(`Loading from ${url} ...`);
+      try {
+        const data = await fetchJSON(url);
+        setOutput({ source: "api", url, data });
+      } catch (err) {
+        // Fallback to local example so the homepage is usable without backend wiring
+        setOutput({
+          source: "fallback",
+          url,
+          error: err,
+          example: mockPayload(fallbackKind),
+          hint: "Wire these endpoints in your backend to return JSON for real data."
+        });
+      }
+    }
+
+    // Button handlers
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-role][data-action]');
+      if (!btn) return;
+
+      const role = btn.getAttribute('data-role');
+      const action = btn.getAttribute('data-action');
+
+      // Example endpoints (replace with your real routes)
+      const routes = {
+        customer: { preview: "/api/demo/customer/order-tracking" },
+        ops: { flowchart: "/api/ops/flowcharts/latest" },
+        merchant: { subscribe: "/api/merchant/suborders/stream-info" },
+        admin: { audit: "/api/admin/audit/sample" }
+      };
+
+      const url = (routes[role] && routes[role][action]) ? routes[role][action] : "/api/demo";
+      tryAPIOrFallback(url, role);
+    });
+
+    document.getElementById('btnClear').addEventListener('click', () => {
+      setOutput("Cleared. Click a role action to load sample data.");
+    });
+
+    document.getElementById('btnDemo').addEventListener('click', async () => {
+      await tryAPIOrFallback("/api/health", "demo");
+    });
+
+    document.getElementById('btnHealth').addEventListener('click', async () => {
+      await tryAPIOrFallback("/api/health", "demo");
+    });
+
+    // Footer year
+    document.getElementById('year').textContent = String(new Date().getFullYear());
+  </script>
+</body>
+</html>
