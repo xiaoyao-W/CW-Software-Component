@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Merchant Dashboard</title>
+
+  <!-- Bootstrap 5 (CSS) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg: #0b1220;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.08);
+      --border: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+      --accent: #6ea8fe;
+      --success: #4dd4ac;
+      --warning: #ffc107;
+      --danger: #ff6b6b;
+    }
+    body{
+      background: radial-gradient(1200px 600px at 15% 10%, rgba(110,168,254,.20), transparent 55%),
+                  radial-gradient(900px 500px at 80% 30%, rgba(77,212,172,.18), transparent 60%),
+                  radial-gradient(800px 500px at 50% 90%, rgba(255,193,7,.12), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .navbar{
+      background: rgba(0,0,0,.35) !important;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+    .nav-link, .navbar-brand, .navbar-text{ color: var(--text) !important; }
+    .nav-link.active{
+      font-weight: 600;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: .25rem;
+    }
+    .container-fluid.main{
+      padding-top: 1.25rem;
+      padding-bottom: 2.5rem;
+    }
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+    }
+    .card .card-header{
+      background: rgba(0,0,0,.15);
+      border-bottom: 1px solid var(--border);
+    }
+    .muted{ color: var(--muted); }
+    .badge-soft{
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--text);
+    }
+    .kpi{
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: .75rem;
+      padding: 1rem;
+      height: 100%;
+    }
+    .kpi .label{ color: var(--muted); font-size: .9rem; }
+    .kpi .value{ font-size: 1.6rem; font-weight: 700; letter-spacing: .2px; }
+    .kpi .delta{ font-size: .9rem; color: var(--muted); }
+    .table{
+      color: var(--text);
+      margin-bottom: 0;
+    }
+    .table thead th{
+      color: var(--muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border) !important;
+    }
+    .table td, .table th{
+      border-top: 1px solid rgba(255,255,255,.08) !important;
+      vertical-align: middle;
+    }
+    .form-control, .form-select{
+      background: rgba(0,0,0,.25);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .form-control:focus, .form-select:focus{
+      box-shadow: 0 0 0 .2rem rgba(110,168,254,.25);
+      border-color: rgba(110,168,254,.6);
+    }
+    .form-control::placeholder{ color: rgba(255,255,255,.45); }
+    .btn-outline-light{
+      border-color: rgba(255,255,255,.3);
+      color: var(--text);
+    }
+    .btn-outline-light:hover{
+      background: rgba(255,255,255,.1);
+      border-color: rgba(255,255,255,.45);
+      color: var(--text);
+    }
+    .pill{
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.25);
+      padding: .4rem .65rem;
+      border-radius: 999px;
+      display: inline-flex;
+      gap: .5rem;
+      align-items: center;
+      font-size: .9rem;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .status-dot{
+      width: .6rem; height: .6rem; border-radius: 50%;
+      display: inline-block;
+    }
+    .dot-new{ background: var(--accent); }
+    .dot-accepted{ background: var(--warning); }
+    .dot-preparing{ background: #a78bfa; }
+    .dot-ready{ background: var(--success); }
+    .dot-completed{ background: rgba(255,255,255,.55); }
+    .dot-cancelled{ background: var(--danger); }
+
+    .scroll-area{ max-height: 520px; overflow: auto; }
+    .scroll-area::-webkit-scrollbar{ height: 10px; width: 10px; }
+    .scroll-area::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.14); border-radius: 999px; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .small-help{ color: var(--muted); font-size: .875rem; }
+    .toast-container{ z-index: 2000; }
+    .chart-box{
+      height: 220px;
+      width: 100%;
+      background: rgba(0,0,0,.18);
+      border: 1px solid var(--border);
+      border-radius: .75rem;
+      padding: .75rem;
+    }
+    .chart-box canvas{ width: 100% !important; height: 100% !important; }
+    .section-title{
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+    .link-muted{ color: var(--muted); text-decoration: none; }
+    .link-muted:hover{ color: var(--text); text-decoration: underline; }
+    .btn-sm{ padding: .35rem .6rem; }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#dashboard">
+        <span class="badge rounded-pill text-bg-primary">Merchant</span>
+        <span>Vendor Dashboard</span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navMain">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link active" href="#dashboard" data-section="dashboard">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="#orders" data-section="orders">Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="#menu" data-section="menu">Menu</a></li>
+          <li class="nav-item"><a class="nav-link" href="#settings" data-section="settings">Settings</a></li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-2">
+          <span class="pill">
+            <span class="status-dot dot-ready" id="connDot"></span>
+            <span id="connText">Connecting…</span>
+          </span>
+          <button class="btn btn-outline-light btn-sm" id="btnLogout">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid main">
+    <!-- Top controls -->
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-lg-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+              <div>
+                <div class="section-title">My Stall</div>
+                <div class="small-help">View and update only your stall’s sub-orders in real time.</div>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 align-items-end">
+                <div>
+                  <label class="form-label mb-1 small-help">Stall ID</label>
+                  <input class="form-control form-control-sm mono" id="stallId" placeholder="e.g. 12" />
+                </div>
+                <div>
+                  <label class="form-label mb-1 small-help">Auth token (optional)</label>
+                  <input class="form-control form-control-sm mono" id="authToken" placeholder="Bearer …" />
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-primary btn-sm" id="btnApply">Apply</button>
+                  <button class="btn btn-outline-light btn-sm" id="btnRefresh">Refresh</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3 d-flex flex-wrap gap-2 align-items-center">
+              <span class="badge badge-soft">Polling: <span id="pollRateLabel" class="mono">4000ms</span></span>
+              <span class="badge badge-soft">Last sync: <span id="lastSync" class="mono">—</span></span>
+              <span class="badge badge-soft">Stall: <span id="stallLabel" class="mono">—</span></span>
+              <a class="link-muted ms-auto" href="http://127.0.0.1:5000" target="_blank" rel="noreferrer">API: http://127.0.0.1:5000</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI tiles -->
+      <div class="col-12 col-lg-4">
+        <div class="row g-3">
+          <div class="col-12 col-sm-6 col-lg-12">
+            <div class="kpi">
+              <div class="label">Incoming / New</div>
+              <div class="value" id="kpiNew">0</div>
+              <div class="delta">Accepted/Preparing/Ready tracked below</div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-12">
+            <div class="kpi">
+              <div class="label">Today’s Sales (est.)</div>
+              <div class="value" id="kpiSales">$0.00</div>
+              <div class="delta">Based on completed sub-orders</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sections -->
+    <div class="row g-3">
+      <!-- Orders / Dashboard main -->
+      <div class="col-12 col-xl-8">
+        <div class="card" id="section-dashboard">
+          <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
+            <div>
+              <div class="section-title">Incoming Sub-Orders</div>
+              <div class="small-help">Only sub-orders for your stall are shown. Update statuses in-line.</div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <select class="form-select form-select-sm" id="orderFilter" style="max-width: 200px;">
+                <option value="all">All</option>
+                <option value="new">New</option>
+                <option value="accepted">Accepted</option>
+                <option value="preparing">Preparing</option>
+                <option value="ready">Ready</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <input class="form-control form-control-sm" id="orderSearch" placeholder="Search order id/customer/item…" style="max-width: 260px;" />
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="scroll-area">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                  <thead>
+                    <tr>
+                      <th>Sub-Order</th>
+                      <th>Parent Order</th>
+                      <th>Customer</th>
+                      <th>Items</th>
+                      <th>Total</th>
+                      <th>Status</th>
+                      <th style="min-width: 240px;">Update</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ordersTbody">
+                    <tr>
+                      <td colspan="7" class="text-center muted py-4">No data yet. Enter Stall ID and click Apply.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mt-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
+              <div class="small-help">
+                Tips: Use <span class="mono">New → Accepted → Preparing → Ready → Completed</span>.
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-light btn-sm" id="btnMarkAllPreparing">Mark all Accepted → Preparing</button>
+                <button class="btn btn-outline-light btn-sm" id="btnMarkAllReady">Mark all Preparing → Ready</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders section anchor (same table) -->
+        <div class="card mt-3 d-none" id="section-orders">
+          <div class="card-header">
+            <div class="section-title">Orders</div>
+            <div class="small-help">Same live view as Dashboard.</div>
+          </div>
+          <div class="card-body">
+            <div class="muted">Use the Dashboard section above for live updates.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column: analytics + menu management -->
+      <div class="col-12 col-xl-4">
+        <!-- Sales Analytics -->
+        <div class="card mb-3">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <div class="section-title">Sales Analytics</div>
+              <div class="small-help">Overview for your stall</div>
+            </div>
+            <select class="form-select form-select-sm" id="analyticsRange" style="max-width: 170px;">
+              <option value="today">Today</option>
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+            </select>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-6">
+                <div class="kpi">
+                  <div class="label">Completed</div>
+                  <div class="value" id="kpiCompleted">0</div>
+                  <div class="delta" id="kpiCompletedNote">Range: Today</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="kpi">
+                  <div class="label">Avg. Ticket</div>
+                  <div class="value" id="kpiAvg">$0.00</div>
+                  <div class="delta">Completed only</div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="chart-box">
+                  <canvas id="salesCanvas" aria-label="Sales chart"></canvas>
+                </div>
+                <div class="small-help mt-2">Shows revenue trend (mocked if API doesn’t provide analytics).</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Menu Management -->
+        <div class="card" id="section-menu">
+          <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
+            <div>
+              <div class="section-title">Menu / Product Management</div>
+              <div class="small-help">Add, edit, enable/disable items.</div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-light btn-sm" id="btnReloadMenu">Reload</button>
+              <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAddItem">Add Item</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="mb-2 d-flex gap-2">
+              <input class="form-control form-control-sm" id="menuSearch" placeholder="Search menu…" />
+              <select class="form-select form-select-sm" id="menuFilter" style="max-width: 170px;">
+                <option value="all">All</option>
+                <option value="enabled">Enabled</option>
+                <option value="disabled">Disabled</option>
+              </select>
+            </div>
+
+            <div class="scroll-area" style="max-height: 420px;">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Price</th>
+                      <th>Status</th>
+                      <th style="min-width: 160px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="menuTbody">
+                    <tr><td colspan="4" class="text-center muted py-4">No data yet.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mt-3 small-help">
+              API endpoints are configurable in code; default points to <span class="mono">http://127.0.0.1:5000</span>.
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="card mt-3 d-none" id="section-settings">
+          <div class="card-header">
+            <div class="section-title">Settings</div>
+            <div class="small-help">Dashboard preferences</div>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Real-time refresh interval</label>
+                <div class="d-flex gap-2 align-items-center">
+                  <input type="range" class="form-range" min="2000" max="15000" step="500" id="pollRate" />
+                  <span class="badge badge-soft mono" id="pollRateValue">4000</span>
+                  <span class="muted">ms</span>
+                </div>
+                <div class="small-help">Lower values increase responsiveness but add load.</div>
+              </div>
+              <div class="col-12">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="soundToggle" />
+                  <label class="form-check-label" for="soundToggle">Sound on new orders</label>
+                </div>
+                <div class="small-help">Plays a short beep when new sub-orders arrive.</div>
+              </div>
+              <div class="col-12">
+                <button class="btn btn-outline-light btn-sm" id="btnClearLocal">Clear local settings</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Add Item Modal -->
+  <div class="modal fade" id="modalAddItem" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background: rgba(12,18,32,.98); border: 1px solid rgba(255,255,255,.18);">
+        <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,.12);">
+          <h5 class="modal-title">Add Menu Item</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Name</label>
+              <input class="form-control" id="addName" placeholder="e.g. Chicken Wrap" />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Price</label>
+              <input class="form-control" id="addPrice" type="number" step="0.01" placeholder="e.g. 8.99" />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Enabled</label>
+              <select class="form-select" id="addEnabled">
+                <option value="true" selected>Yes</option>
+                <option value="false">No</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description (optional)</label>
+              <input class="form-control" id="addDesc" placeholder="Short description" />
+            </div>
+          </div>
+          <div class="small-help mt-3">
+            If your API uses different fields, adjust payload in the JS.
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,.12);">
+          <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btnAddItemSave">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Item Modal -->
+  <div class="modal fade" id="modalEditItem" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background: rgba(12,18,32,.98); border: 1px solid rgba(255,255,255,.18);">
+        <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,.12);">
+          <h5 class="modal-title">Edit Menu Item</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="editId" />
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Name</label>
+              <input class="form-control" id="editName" />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Price</label>
+              <input class="form-control" id="editPrice" type="number" step="0.01" />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Enabled</label>
+              <select class="form-select" id="editEnabled">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <input class="form-control" id="editDesc" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,.12);">
+          <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btnEditItemSave">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="appToast" class="toast text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastBody">—</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 (JS bundle) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // -----------------------------
+    // Config
+    // -----------------------------
+    const API_BASE = "http://127.0.0.1:5000";
+
+    // These endpoints are conventional. If your backend differs, change here.
+    const endpoints = {
+      // Sub-orders for a stall:
+      // GET  /api/merchant/stalls/{stallId}/suborders
+      // or  /api/stalls/{stallId}/suborders
+      suborders: (stallId) => [
+        `${API_BASE}/api/merchant/stalls/${encodeURIComponent(stallId)}/suborders`,
+        `${API_BASE}/api/stalls/${encodeURIComponent(stallId)}/suborders`,
+        `${API_BASE}/merchant/stalls/${encodeURIComponent(stallId)}/suborders`,
+        `${API_BASE}/suborders?stall_id=${encodeURIComponent(stallId)}`
+      ],
+      // Update status:
+      // PATCH /api/suborders/{subOrderId}
+      updateSuborder: (subOrderId) => [
+        `${API_BASE}/api/suborders/${encodeURIComponent(subOrderId)}`,
+        `${API_BASE}/suborders/${encodeURIComponent(subOrderId)}`
+      ],
+      // Menu items for stall:
+      // GET/POST /api/merchant/stalls/{stallId}/menu
+      menu: (stallId) => [
+        `${API_BASE}/api/merchant/stalls/${encodeURIComponent(stallId)}/menu`,
+        `${API_BASE}/api/stalls/${encodeURIComponent(stallId)}/menu`,
+        `${API_BASE}/merchant/stalls/${encodeURIComponent(stallId)}/menu`,
+        `${API_BASE}/menu?stall_id=${encodeURIComponent(stallId)}`
+      ],
+      // Update menu item:
+      // PATCH/DELETE /api/menu/items/{id}
+      menuItem: (id) => [
+        `${API_BASE}/api/menu/items/${encodeURIComponent(id)}`,
+        `${API_BASE}/api/items/${encodeURIComponent(id)}`,
+        `${API_BASE}/menu/items/${encodeURIComponent(id)}`
+      ],
+      // Analytics (optional):
+      analytics: (stallId, range) => [
+        `${API_BASE}/api/merchant/stalls/${encodeURIComponent(stallId)}/analytics?range=${encodeURIComponent(range)}`,
+        `${API_BASE}/api/stalls/${encodeURIComponent(stallId)}/analytics?range=${encodeURIComponent(range)}`,
+        `${API_BASE}/analytics?stall_id=${encodeURIComponent(stallId)}&range=${encodeURIComponent(range)}`
+      ]
+    };
+
+    // -----------------------------
+    // State
+    // -----------------------------
+    const state = {
+      stallId: "",
+      authToken: "",
+      pollRate: 4000,
+      pollTimer: null,
+      sound: false,
+      orders: [],
+      menu: [],
+      lastOrderIds: new Set(),
+      connected: false
+    };
+
+    // -----------------------------
+    // Elements
+    // -----------------------------
+    const el = {
+      stallId: document.getElementById("stallId"),
+      authToken: document.getElementById("authToken"),
+      btnApply: document.getElementById("btnApply"),
+      btnRefresh: document.getElementById("btnRefresh"),
+      btnLogout: document.getElementById("btnLogout"),
+      stallLabel: document.getElementById("stallLabel"),
+      lastSync: document.getElementById("lastSync"),
+      connDot: document.getElementById("connDot"),
+      connText: document.getElementById("connText"),
+
+      orderFilter: document.getElementById("orderFilter"),
+      orderSearch: document.getElementById("orderSearch"),
+      ordersTbody: document.getElementById("ordersTbody"),
+      btnMarkAllPreparing: document.getElementById("btnMarkAllPreparing"),
+      btnMarkAllReady: document.getElementById("btnMarkAllReady"),
+
+      analyticsRange: document.getElementById("analyticsRange"),
+      kpiNew: document.getElementById("kpiNew"),
+      kpiSales: document.getElementById("kpiSales"),
+      kpiCompleted: document.getElementById("kpiCompleted"),
+      kpiAvg: document.getElementById("kpiAvg"),
+      kpiCompletedNote: document.getElementById("kpiCompletedNote"),
+      salesCanvas: document.getElementById("salesCanvas"),
+
+      btnReloadMenu: document.getElementById("btnReloadMenu"),
+      menuSearch: document.getElementById("menuSearch"),
+      menuFilter: document.getElementById("menuFilter"),
+      menuTbody: document.getElementById("menuTbody"),
+
+      pollRate: document.getElementById("pollRate"),
+      pollRateValue: document.getElementById("pollRateValue"),
+      pollRateLabel: document.getElementById("pollRateLabel"),
+      soundToggle: document.getElementById("soundToggle"),
+      btnClearLocal: document.getElementById("btnClearLocal"),
+
+      // Add modal
+      addName: document.getElementById("addName"),
+      addPrice: document.getElementById("addPrice"),
+      addEnabled: document.getElementById("addEnabled"),
+      addDesc: document.getElementById("addDesc"),
+      btnAddItemSave: document.getElementById("btnAddItemSave"),
+
+      // Edit modal
+      editId: document.getElementById("editId"),
+      editName: document.getElementById("editName"),
+      editPrice: document.getElementById("editPrice"),
+      editEnabled: document.getElementById("editEnabled"),
+      editDesc: document.getElementById("editDesc"),
+      btnEditItemSave: document.getElementById("btnEditItemSave")
+    };
+
+    // Toast
+    const toastEl = document.getElementById("appToast");
+    const toast = bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 2800 });
+    function notify(msg){
+      document.getElementById("toastBody").textContent = msg;
+      toast.show();
+    }
+
+    // -----------------------------
+    // Utilities
+    // -----------------------------
+    function money(n){
+      const v = Number(n || 0);
+      return v.toLocaleString(undefined, { style: "currency", currency: "USD" });
+    }
+    function nowLabel(){
+      const d = new Date();
+      return d.toLocaleString();
+    }
+    function setConn(ok, text){
+      state.connected = ok;
+      el.connText.textContent = text;
+      el.connDot.className = "status-dot " + (ok ? "dot-ready" : "dot-cancelled");
+    }
+    function authHeaders(){
+      const headers = { "Content-Type": "application/json" };
+      const token = (state.authToken || "").trim();
+      if(token) headers["Authorization"] = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
+      return headers;
+    }
+    async function fetchFirstOk(urls, options){
+      let lastErr = null;
+      for(const url of urls){
+        try{
+          const res = await fetch(url, options);
+          if(!res.ok){
+            lastErr = new Error(`${res.status} ${res.statusText} @ ${url}`);
+            continue;
+          }
+          const ct = res.headers.get("content-type") || "";
+          if(ct.includes("application/json")) return await res.json();
+          // allow empty body
+          const text = await res.text();
+          return text ? JSON.parse(text) : {};
+        }catch(err){
+          lastErr = err;
+        }
+      }
+      throw lastErr || new Error("Request failed");
+    }
+    function safeText(x){
+      return (x === null || x === undefined) ? "" : String(x);
+    }
+
+    // -----------------------------
+    // Data Normalization (tolerant)
+    // -----------------------------
+    function normalizeSuborders(payload){
+      // Accept shapes:
+      // - Array
+      // - {suborders:[...]} / {data:[...]} / {orders:[...]}
+      const list = Array.isArray(payload) ? payload
+                : Array.isArray(payload?.suborders) ? payload.suborders
+                : Array.isArray(payload?.data) ? payload.data
+                : Array.isArray(payload?.orders) ? payload.orders
+                : [];
+      return list.map(o => ({
+        id: o.id ?? o.suborder_id ?? o.subOrderId ?? o.sub_order_id ?? o.uuid ?? "",
+        parentOrderId: o.parent_order_id ?? o.order_id ?? o.parentOrderId ?? o.orderId ?? "",
+        customerName: o.customer_name ?? o.customer?.name ?? o.customerName ?? o.customer ?? "",
+        items: (o.items ?? o.lines ?? o.products ?? []).map(it => ({
+          name: it.name ?? it.product_name ?? it.title ?? "Item",
+          qty: it.qty ?? it.quantity ?? 1
+        })),
+        total: o.total ?? o.amount ?? o.subtotal ?? o.total_price ?? o.price_total ?? 0,
+        status: (o.status ?? o.state ?? "new").toString().toLowerCase(),
+        createdAt: o.created_at ?? o.createdAt ?? o.time ?? null,
+        raw: o
+      }));
+    }
+
+    function normalizeMenu(payload){
+      const list = Array.isArray(payload) ? payload
+                : Array.isArray(payload?.items) ? payload.items
+                : Array.isArray(payload?.menu) ? payload.menu
+                : Array.isArray(payload?.data) ? payload.data
+                : [];
+      return list.map(it => ({
+        id: it.id ?? it.item_id ?? it.menu_item_id ?? it.uuid ?? "",
+        name: it.name ?? it.title ?? "Unnamed",
+        price: it.price ?? it.unit_price ?? it.amount ?? 0,
+        enabled: (it.enabled ?? it.is_enabled ?? it.available ?? true) === true || (it.enabled ?? it.is_enabled ?? it.available) === 1 || String(it.enabled ?? it.is_enabled ?? it.available).toLowerCase() === "true",
+        description: it.description ?? it.desc ?? "",
+        raw: it
+      }));
+    }
+
+    // -----------------------------
+    // Rendering
+    // -----------------------------
+    function statusDotClass(status){
+      switch(status){
+        case "new": return "dot-new";
+        case "accepted": return "dot-accepted";
+        case "preparing": return "dot-preparing";
+        case "ready": return "dot-ready";
+        case "completed": return "dot-completed";
+        case "cancelled": return "dot-cancelled";
+        default: return "dot-new";
+      }
+    }
+    function statusLabel(status){
+      return status ? (status.charAt(0).toUpperCase() + status.slice(1)) : "—";
+    }
+
+    function filteredOrders(){
+      const f = el.orderFilter.value;
+      const q = el.orderSearch.value.trim().toLowerCase();
+      return state.orders.filter(o => {
+        const okStatus = (f === "all") ? true : o.status === f;
+        if(!okStatus) return false;
+        if(!q) return true;
+        const items = o.items.map(i => `${i.qty}x ${i.name}`).join(" | ").toLowerCase();
+        const hay = `${o.id} ${o.parentOrderId} ${o.customerName} ${items}`.toLowerCase();
+        return hay.includes(q);
+      });
+    }
+
+    function renderOrders(){
+      const rows = filteredOrders();
+      if(rows.length === 0){
+        el.ordersTbody.innerHTML = `<tr><td colspan="7" class="text-center muted py-4">No matching sub-orders.</td></tr>`;
+        return;
+      }
+
+      el.ordersTbody.innerHTML = rows.map(o => {
+        const itemsHtml = o.items.length
+          ? o.items.map(i => `<div class="mono">${safeText(i.qty)}x ${escapeHtml(i.name)}</div>`).join("")
+          : `<div class="muted">—</div>`;
+
+        const created = o.createdAt ? new Date(o.createdAt).toLocaleTimeString() : "";
+
+        return `
+          <tr data-suborder-id="${escapeAttr
